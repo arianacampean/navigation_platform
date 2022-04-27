@@ -229,7 +229,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
               child: SizedBox(
                 //  height: 100.0,
-                width: SizeConfig.screenHeight! * 0.15,
+                width: SizeConfig.screenHeight! * 0.10,
                 child: FittedBox(
                   child: FloatingActionButton.extended(
                     onPressed: () async {

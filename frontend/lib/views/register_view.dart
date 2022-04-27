@@ -332,7 +332,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   ),
                   child: SizedBox(
                     //  height: 100.0,
-                    width: SizeConfig.screenHeight! * 0.15,
+                    width: SizeConfig.screenHeight! * 0.12,
                     child: FittedBox(
                       child: FloatingActionButton.extended(
                         onPressed: () async {

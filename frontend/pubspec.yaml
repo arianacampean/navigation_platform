@@ -100,6 +100,7 @@ flutter:
       - assets/images/prague.jpg
       - assets/images/add.png
       - assets/images/history.png
+      - assets/images/gps.png
 
 
   # To add assets to your application, add an assets section, like this:

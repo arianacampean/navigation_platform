@@ -11,10 +11,9 @@ import 'package:frontend/models/user.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SecurityPage extends StatefulWidget {
-  Settings settings;
+  // Settings settings;
   User user;
-  SecurityPage({Key? key, required this.settings, required this.user})
-      : super(key: key);
+  SecurityPage({Key? key, required this.user}) : super(key: key);
 
   @override
   _SecurityPageState createState() => _SecurityPageState();
@@ -38,32 +37,39 @@ class _SecurityPageState extends State<SecurityPage> {
     super.initState();
     // repo = Repo.repo;
     // appRepository = AppRepository(repo);
-    getData();
+    //getData();
+    col_background = Colors.white;
+    buttons_col = Color.fromRGBO(159, 224, 172, 1);
+    color_border = Colors.white;
+    text_color = Colors.black;
+    hover_color = Color.fromRGBO(170, 224, 172, 1);
   }
 
-  Future getData() async {
-    if (widget.settings.theme == "light") {
-      col_background = Colors.white;
-      buttons_col = Color.fromRGBO(159, 224, 172, 1);
-      color_border = Colors.white;
-      text_color = Colors.black;
-      hover_color = Color.fromRGBO(170, 224, 172, 1);
-    } else {
-      col_background = Color.fromRGBO(38, 41, 40, 1);
-      buttons_col = Color.fromRGBO(38, 41, 40, 1);
-      color_border = Colors.black;
-      text_color = Color.fromRGBO(159, 224, 172, 1);
-      hover_color = Color.fromRGBO(138, 150, 142, 100000);
-    }
+  // Future getData() async {
+  //   if (widget.settings.theme == "light") {
+  //     col_background = Colors.white;
+  //     buttons_col = Color.fromRGBO(159, 224, 172, 1);
+  //     color_border = Colors.white;
+  //     text_color = Colors.black;
+  //     hover_color = Color.fromRGBO(170, 224, 172, 1);
+  //   } else {
+  //     col_background = Color.fromRGBO(38, 41, 40, 1);
+  //     buttons_col = Color.fromRGBO(38, 41, 40, 1);
+  //     color_border = Colors.black;
+  //     text_color = Color.fromRGBO(159, 224, 172, 1);
+  //     hover_color = Color.fromRGBO(138, 150, 142, 100000);
+  //   }
 
-    // setState(() => isLoading = false);
-  }
+  //   // setState(() => isLoading = false);
+  // }
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text("Security"),
+      ),
       body: WillPopScope(
         onWillPop: () async {
           Navigator.pop(context);
@@ -79,11 +85,13 @@ class _SecurityPageState extends State<SecurityPage> {
             child: Container(
                 child: ListView(children: [
               SizedBox(height: SizeConfig.blockSizeVertical! * 8),
-              Text("Change your password",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: text_color)
-                  //color:text_color,
-                  ),
+              Text(
+                "Change your password",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: text_color, fontSize: 22),
+
+                //color:text_color,
+              ),
               Divider(
                 color: Colors.black,
                 height: 25,
@@ -97,10 +105,13 @@ class _SecurityPageState extends State<SecurityPage> {
                   child: Text(
                     "Fill in the fields below",
                     style: TextStyle(
-                        fontSize: SizeConfig.screenHeight! * 0.027,
+                        fontSize: 20,
                         color: Colors.black,
                         fontWeight: FontWeight.w500),
                   )),
+              SizedBox(
+                height: 20,
+              ),
               Container(
                   alignment: Alignment.center,
                   width: SizeConfig.screenWidth! * 0.3,
@@ -130,7 +141,7 @@ class _SecurityPageState extends State<SecurityPage> {
                         hoverColor: hover_color,
                         hintStyle: TextStyle(
                           color: text_color,
-                          fontSize: 12,
+                          fontSize: 20,
                         )),
                     style: TextStyle(
                         fontSize: SizeConfig.screenHeight! * 0.025,
@@ -163,7 +174,7 @@ class _SecurityPageState extends State<SecurityPage> {
                       hoverColor: hover_color,
                       hintStyle: TextStyle(
                         color: text_color,
-                        fontSize: 12,
+                        fontSize: 20,
                       ),
                     ),
                     style: TextStyle(
@@ -199,7 +210,7 @@ class _SecurityPageState extends State<SecurityPage> {
                         hoverColor: hover_color,
                         hintStyle: TextStyle(
                           color: text_color,
-                          fontSize: 12,
+                          fontSize: 20,
                         )),
                     style: TextStyle(
                         fontSize: SizeConfig.screenHeight! * 0.025,
@@ -248,9 +259,7 @@ class _SecurityPageState extends State<SecurityPage> {
                 },
                 child: Text(
                   "Save changes",
-                  style: TextStyle(
-                      fontSize: SizeConfig.screenHeight! * 0.02,
-                      color: text_color),
+                  style: TextStyle(fontSize: 20, color: text_color),
                 ),
               ),
             ])),

@@ -1,15 +1,22 @@
 import 'package:frontend/models/trip.dart';
 
+import 'package:json_annotation/json_annotation.dart';
+part 'journey.g.dart';
+
+@JsonSerializable()
 class Journey {
   int? id;
-  Trip id_trip;
-  DateTime start;
-  DateTime end;
+  int? id_user;
+  DateTime start_date;
+  DateTime end_date;
 
   Journey({
     this.id,
-    required this.id_trip,
-    required this.start,
-    required this.end,
+    this.id_user,
+    required this.start_date,
+    required this.end_date,
   });
+  factory Journey.fromJson(Map<String, dynamic> json) =>
+      _$JourneyFromJson(json);
+  Map<String, dynamic> toJson() => _$JourneyToJson(this);
 }

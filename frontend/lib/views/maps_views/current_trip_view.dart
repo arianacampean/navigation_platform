@@ -1,18 +1,34 @@
 import 'dart:developer';
 import 'dart:io';
-
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/directions.dart';
+import 'package:frontend/models/exceptie.dart';
+import 'package:frontend/models/journey.dart';
 import 'package:frontend/models/sizeConf.dart';
 import 'package:frontend/models/trip.dart';
+import 'package:frontend/models/tripDate.dart';
+import 'package:frontend/models/user.dart';
+import 'package:frontend/repository/app_repo.dart';
 import 'package:frontend/repository/direction_repo.dart';
+import 'package:frontend/repository/repo.dart';
+import 'package:frontend/views/maps_views/modify_trip.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:frontend/texts/text.dart' as text;
+import 'package:location/location.dart';
 
 class CurrentTrip extends StatefulWidget {
-  CurrentTrip() : super();
+  User user;
+  Journey journey;
+  List<Trip> trips;
+  CurrentTrip(
+      {Key? key,
+      required this.user,
+      required this.journey,
+      required this.trips})
+      : super(key: key);
 
   @override
   _CurrentTripState createState() => _CurrentTripState();
@@ -20,11 +36,16 @@ class CurrentTrip extends StatefulWidget {
 
 class _CurrentTripState extends State<CurrentTrip> {
   bool isLoading = true;
+  late Repo repo;
+  late AppRepository appRepository;
   late LatLng currentPostion;
   late GoogleMapController _controller;
   late Marker current_poz;
   late Marker destination;
   bool firstMesage = true;
+  List<TripDate> tripdate = [];
+  bool arrivedAtDestination = false;
+  // List<Trip> trips = [];
   late Trip trip = Trip(
       latitude: 0,
       longitude: 0,
@@ -32,58 +53,43 @@ class _CurrentTripState extends State<CurrentTrip> {
       country: "",
       name: "",
       visited: false);
-  //LatLng coord = LatLng(46.7422, 23.4840);
+  LatLng coord = LatLng(46.7422, 23.4840);
   late Directions directions;
-  Trip t1 = Trip(
-      latitude: 45.3570,
-      longitude: 23.2132,
-      city: 'Lupeni',
-      country: 'Romania',
-      name: 'lupeni,ro',
-      visited: false);
-  Trip t2 = Trip(
-      latitude: 44.4268,
-      longitude: 26.1025,
-      city: 'Bucuresti',
-      country: 'Romania',
-      name: 'Bucuresti,B,Ro',
-      visited: false);
-  Trip t3 = Trip(
-      latitude: 45.7489,
-      longitude: 21.2087,
-      city: 'Timisoara',
-      country: 'Romania',
-      name: 'Timisoara,TM,Roamnia',
-      visited: false);
-  Trip t4 = Trip(
-      latitude: 53.4808,
-      longitude: 2.2426,
-      city: 'Sibiu',
-      country: 'Romania',
-      name: 'Sibiu,sb,Romania',
-      visited: true);
-  List<Trip> trips = [];
-  Trip t5 = Trip(
-      latitude: 46.7422,
-      longitude: 23.4840,
-      city: 'Floresti',
-      country: 'Romania',
-      name: 'Floresti,Romania',
-      visited: false);
+  late Exceptie ex;
+  int index = 0;
+  bool readToStart = false;
+  Location _location = Location();
+  late LatLng finalPosition;
 
   @override
   void initState() {
     super.initState();
+    repo = Repo.repo;
+    ex = Exceptie.ex;
+
+    appRepository = AppRepository(repo);
+
     isLoading = true;
-    trips.add(t1);
-    trips.add(t2);
-    trips.add(t4);
-    trips.add(t5);
-    trips.add(t3);
 
     _getUserLocation();
+    const duration = Duration(minutes: 1);
+    //Timer.periodic(duration, (Timer t) => _arrived());
+  }
 
-    //  isLoading = false;
+  void _arrived() async {
+    log("calculez");
+    _location.onLocationChanged.listen((l) async {
+      setState(() {
+        // currentPostion = LatLng(l.latitude!, l.longitude!);
+        currentPostion = LatLng(46.7712, 23.6236);
+      });
+      var dir = await DirectionsRepo()
+          .getDirections(origin: currentPostion, destination: finalPosition);
+      setState(() {
+        directions != dir;
+      });
+      log(directions.totalDuration);
+    });
   }
 
   @override
@@ -91,192 +97,357 @@ class _CurrentTripState extends State<CurrentTrip> {
     // TODO: implement build
     SizeConfig().init(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Route'),
-        centerTitle: false,
-        actions: [
-          TextButton(
-              onPressed: () =>
-                  _controller.animateCamera(CameraUpdate.newCameraPosition(
-                    CameraPosition(target: currentPostion, zoom: 19),
-                  )),
-              style: TextButton.styleFrom(primary: Colors.white),
-              child: Text("Current position")),
-          if (trip.name != "")
+        appBar: AppBar(
+          title: const Text('Route'),
+          centerTitle: false,
+          actions: [
             TextButton(
                 onPressed: () =>
                     _controller.animateCamera(CameraUpdate.newCameraPosition(
-                      CameraPosition(target: destination.position, zoom: 19),
+                      CameraPosition(target: currentPostion, zoom: 19),
                     )),
                 style: TextButton.styleFrom(primary: Colors.white),
-                child: Text("Destination"))
-        ],
-      ),
-      body: Center(
-          child: trip.name == ""
-              ? CircularProgressIndicator()
-              : Container(
-                  // padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
+                child: Text("Current position")),
+            if (trip.name != "")
+              TextButton(
+                  onPressed: () =>
+                      _controller.animateCamera(CameraUpdate.newCameraPosition(
+                        CameraPosition(target: destination.position, zoom: 19),
+                      )),
+                  style: TextButton.styleFrom(primary: Colors.white),
+                  child: Text("Destination"))
+          ],
+        ),
+        body: WillPopScope(
+          onWillPop: () async {
+            if (widget.trips.length != 0) {
+              widget.trips.forEach((element) {
+                TripDate tr = TripDate(
+                    id: element.id,
+                    id_journey: element.id_journey,
+                    latitude: element.latitude,
+                    longitude: element.longitude,
+                    city: element.city,
+                    country: element.country,
+                    name: element.name,
+                    visited: element.visited,
+                    start_date: widget.journey.start_date,
+                    end_date: widget.journey.end_date);
+                tripdate.add(tr);
+              });
+            }
+            Navigator.pop(context, tripdate);
+            //  Navigator.pop(context);
+            return false;
+          },
+          child: Center(
+              child: trip.name == ""
+                  ? CircularProgressIndicator()
+                  : Container(
+                      // padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
 
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      GoogleMap(
-                        // onMapCreated: _onMapCreated,
-                        initialCameraPosition: CameraPosition(
-                          target: currentPostion,
-                          zoom: 15,
-                        ),
-                        myLocationButtonEnabled: true,
-                        //  myLocationEnabled: true,
-                        mapType: MapType.normal,
-                        markers: {destination},
-                        onMapCreated: (controller) {
-                          //method called when map is created
-                          setState(() {
-                            _controller = controller;
-                          });
-                        },
-                        polylines: {
-                          Polyline(
-                            polylineId: const PolylineId('overview_polyline'),
-                            color: Colors.blue,
-                            width: 5,
-                            points: directions.polylinePoints
-                                .map((e) => LatLng(e.latitude, e.longitude))
-                                .toList(),
-                          )
-                        },
-                      ),
-                      if (firstMesage == true)
-                        Positioned(
-                          top: SizeConfig.screenHeight! * 0.35,
-                          child: Column(
-                            children: [
-                              Container(
-                                alignment: Alignment.center,
-                                color: Colors.white,
-                                padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
-                                width: SizeConfig.screenWidth! * 0.8,
-                                height: SizeConfig.screenHeight! * 0.2,
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 20),
-                                    Text("Next",
-                                        style: TextStyle(fontSize: 25)),
-                                    SizedBox(height: 30),
-                                    Text(
-                                      "The nearest destination is: " +
-                                          trip.name,
-                                      style: TextStyle(fontSize: 20),
-                                    ),
-                                    SizedBox(height: 50),
-                                    TextButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            firstMesage = false;
-                                          });
-                                        },
-                                        child: Text("ok",
-                                            style: TextStyle(fontSize: 20)))
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      if (directions != null)
-                        Positioned(
-                            top: 20,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 6.0, horizontal: 12.0),
-                              decoration: BoxDecoration(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          GoogleMap(
+                            // onMapCreated: _onMapCreated,
+                            initialCameraPosition: CameraPosition(
+                              target: currentPostion,
+                              zoom: 15,
+                            ),
+                            //myLocationButtonEnabled: true,
+                            myLocationEnabled: true,
+                            mapType: MapType.normal,
+
+                            markers: {destination},
+                            onMapCreated: (controller) {
+                              //method called when map is created
+                              setState(() {
+                                _controller = controller;
+                              });
+                            },
+                            polylines: {
+                              Polyline(
+                                polylineId:
+                                    const PolylineId('overview_polyline'),
                                 color: Colors.blue,
-                                borderRadius: BorderRadius.circular(20.0),
-                                boxShadow: const [
-                                  BoxShadow(
-                                      color: Colors.black,
-                                      offset: Offset(0, 2),
-                                      blurRadius: 6.0),
+                                width: 5,
+                                points: directions.polylinePoints
+                                    .map((e) => LatLng(e.latitude, e.longitude))
+                                    .toList(),
+                              )
+                            },
+                          ),
+                          if (firstMesage == true)
+                            // ex.showAlertDialogExceptions(context, "mdf", "df"),
+                            Positioned(
+                              top: SizeConfig.screenHeight! * 0.35,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    alignment: Alignment.center,
+                                    // color: Colors.white,
+                                    padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
+                                    width: SizeConfig.screenWidth! * 0.7,
+                                    // height: SizeConfig.screenHeight! * 0.15,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(20))),
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: 10),
+                                        Text("Next",
+                                            style: TextStyle(fontSize: 25)),
+                                        SizedBox(height: 20),
+                                        Text(
+                                          "The nearest destination is: " +
+                                              trip.name,
+                                          style: TextStyle(fontSize: 20),
+                                        ),
+                                        SizedBox(height: 20),
+                                        TextButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                firstMesage = false;
+                                              });
+                                            },
+                                            child: Text("ok",
+                                                style: TextStyle(fontSize: 20)))
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
-                              child: Text(
-                                '${directions.totalDistance},${directions.totalDuration}',
-                                style: const TextStyle(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white),
-                              ),
-                            )),
-                      Positioned(
-                          // alignment: Alignment(-0.9, -0.81),
-                          top: 20,
-                          left: 20,
-                          child: Container(
-                            width: 60,
-                            height: 40,
-                            child: _popUpMenuButton(),
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(20.0),
-                              boxShadow: const [
-                                BoxShadow(
-                                    color: Colors.black,
-                                    offset: Offset(0, 2),
-                                    blurRadius: 6.0),
-                              ],
                             ),
-                          ))
-                    ],
-                  ),
-                )),
-    );
+                          if (arrivedAtDestination == true)
+                            // ex.showAlertDialogExceptions(context, "mdf", "df"),
+                            Positioned(
+                              top: SizeConfig.screenHeight! * 0.35,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    alignment: Alignment.center,
+                                    // color: Colors.white,
+                                    padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
+                                    width: SizeConfig.screenWidth! * 0.7,
+                                    // height: SizeConfig.screenHeight! * 0.15,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(20))),
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: 10),
+                                        Text("Information",
+                                            style: TextStyle(fontSize: 25)),
+                                        SizedBox(height: 20),
+                                        Text(
+                                          "Have you reached your destination? ",
+                                          style: TextStyle(fontSize: 20),
+                                        ),
+                                        SizedBox(height: 20),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            TextButton(
+                                                onPressed: () {},
+                                                child: Text("No",
+                                                    style: TextStyle(
+                                                        fontSize: 20))),
+                                            TextButton(
+                                                onPressed: () {},
+                                                child: Text("Yes",
+                                                    style: TextStyle(
+                                                        fontSize: 20)))
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (index == 0)
+                            // ex.showAlertDialogExceptions(context, "mdf", "df"),
+                            Positioned(
+                              top: SizeConfig.screenHeight! * 0.35,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    alignment: Alignment.center,
+                                    // color: Colors.white,
+                                    padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
+                                    width: SizeConfig.screenWidth! * 0.7,
+                                    // height: SizeConfig.screenHeight! * 0.15,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(20))),
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: 10),
+                                        Text("Informations",
+                                            style: TextStyle(fontSize: 25)),
+                                        SizedBox(height: 20),
+                                        Text(
+                                          "You don't have any destinations left to visit",
+                                          style: TextStyle(fontSize: 20),
+                                        ),
+                                        SizedBox(height: 20),
+                                        TextButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                index = 1;
+                                                firstMesage = false;
+                                              });
+                                            },
+                                            child: Text("ok",
+                                                style: TextStyle(fontSize: 20)))
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (trip.name != "key")
+                            Positioned(
+                                top: 20,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 6.0, horizontal: 12.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                          color: Colors.black,
+                                          offset: Offset(0, 2),
+                                          blurRadius: 6.0),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    '${directions.totalDistance},${directions.totalDuration}',
+                                    style: const TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white),
+                                  ),
+                                )),
+                          Positioned(
+                              // alignment: Alignment(-0.9, -0.81),
+                              top: 20,
+                              left: 20,
+                              child: Container(
+                                width: 60,
+                                height: 40,
+                                child: _popUpMenuButton(),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(20.0),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                        color: Colors.black,
+                                        offset: Offset(0, 2),
+                                        blurRadius: 6.0),
+                                  ],
+                                ),
+                              ))
+                        ],
+                      ),
+                    )),
+        ));
   }
 
   void _getUserLocation() async {
+    log("sunt in getUserLoc");
+    readToStart = false;
+    setState(() {
+      index = 0;
+    });
     LocationPermission permission;
     permission = await Geolocator.requestPermission();
     var position = await GeolocatorPlatform.instance.getCurrentPosition();
 
     setState(() {
       currentPostion = LatLng(position.latitude, position.longitude);
+      firstMesage = true;
     });
     addRoute();
   }
 
-  void addRoute() async {
-    int minTime = 3200000000;
-    late Trip t;
-    var dir;
-    int contor = 0;
-    trips.forEach((element) async {
-      log("sunt inforeach");
-      LatLng position = LatLng(element.latitude, element.longitude);
-      //daca a terminat de vizitata tot pune condtitie
-      if (element.visited == false) {
-        dir = await DirectionsRepo()
-            .getDirections(origin: currentPostion, destination: position);
+  Future<void> addRoute() async {
+    if (widget.trips.length == 0) {
+      incomplete();
+    } else {
+      log("sunt in add route");
 
-        log(dir!.totalDuration);
-        if (transformInMinutes(dir!.totalDuration) < minTime) {
-          log("sunt in if");
-          log(transformInMinutes(dir!.totalDuration).toString());
-          t = element;
-          minTime = transformInMinutes(dir!.totalDuration);
-          contor++;
+      int minTime = 3200000000;
+      late Trip t;
+      var dir;
+      int contor = 0;
+
+      widget.trips.forEach((element) async {
+        log("sunt inforeach");
+        LatLng position = LatLng(element.latitude, element.longitude);
+        //daca a terminat de vizitata tot pune condtitie
+
+        if (element.visited == false) {
           setState(() {
-            directions = dir!;
-            log("am initializat tripul");
-            trip = t;
-            destination = Marker(
-                markerId: const MarkerId('destination'),
-                infoWindow: const InfoWindow(title: 'Destination'),
-                position: LatLng(trip.latitude, trip.longitude));
+            index++;
           });
-        } else
-          sleep(Duration(milliseconds: 100));
+          log(element.visited.toString() + " " + element.name);
+          dir = await DirectionsRepo()
+              .getDirections(origin: currentPostion, destination: position);
+
+          log(dir!.totalDuration + " " + element.name);
+          if (transformInMinutes(dir!.totalDuration) < minTime) {
+            log("sunt in if");
+            log(transformInMinutes(dir!.totalDuration).toString());
+            t = element;
+            minTime = transformInMinutes(dir!.totalDuration);
+            contor++;
+
+            setState(() {
+              directions = dir!;
+              log("am initializat tripul");
+              finalPosition = LatLng(element.latitude, element.longitude);
+              destination = Marker(
+                  markerId: const MarkerId('destination'),
+                  infoWindow: const InfoWindow(title: 'Destination'),
+                  position: LatLng(t.latitude, t.longitude));
+              trip = t;
+            });
+          } else
+            sleep(Duration(milliseconds: 100));
+        }
+      });
+      if (index == 0) {
+        incomplete();
       }
+    }
+  }
+
+  void incomplete() async {
+    index = 0;
+
+    var dir = await DirectionsRepo()
+        .getDirections(origin: currentPostion, destination: currentPostion);
+    setState(() {
+      destination = Marker(
+          markerId: const MarkerId('destination'),
+          infoWindow: const InfoWindow(title: 'Destination'),
+          position: LatLng(currentPostion.latitude, currentPostion.longitude));
+      trip = Trip(
+          latitude: currentPostion.latitude,
+          longitude: currentPostion.longitude,
+          city: "",
+          country: "",
+          name: "key",
+          visited: false);
+      directions = dir!;
+      finalPosition = LatLng(currentPostion.latitude, currentPostion.longitude);
     });
   }
 
@@ -299,12 +470,12 @@ class _CurrentTripState extends State<CurrentTrip> {
                             content: Builder(
                               builder: (context) {
                                 // Get available height and width of the build area of this widget. Make a choice depending on the size.
-                                var height = MediaQuery.of(context).size.height;
-                                var width = MediaQuery.of(context).size.width;
+                                //  var height = MediaQuery.of(context).size.height;
+                                //  var width = MediaQuery.of(context).size.width;
 
                                 return Container(
-                                  height: height - 800,
-                                  width: width - 200,
+                                  // height: SizeConfig.screenHeight! * 0.3,
+                                  width: SizeConfig.screenWidth! * 0.7,
                                   child: Column(
                                     children: [
                                       Row(
@@ -319,7 +490,7 @@ class _CurrentTripState extends State<CurrentTrip> {
                                         ],
                                       ),
                                       SizedBox(height: 30),
-                                      Text(details(trips),
+                                      Text(details(widget.trips),
                                           style: TextStyle(fontSize: 23)),
                                       SizedBox(height: 30),
                                       TextButton(
@@ -348,6 +519,68 @@ class _CurrentTripState extends State<CurrentTrip> {
                 style:
                     TextStyle(color: Colors.black, fontWeight: FontWeight.w700),
               ),
+              // onTap: ()  {
+              onTap: () async {
+                try {
+                  // final navigator = ;
+                  await Future.delayed(Duration.zero);
+                  List<TripDate> tr = await Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => ModifyPage(
+                              user: widget.user,
+                              journey: widget.journey,
+                              trips: widget.trips)));
+                  if (tr.length == 1) {
+                    if (tr[0].name == "delete") {
+                      Navigator.pop(context);
+                    }
+                  }
+
+                  if (tr.length == 0) {
+                    setState(() {
+                      index = 0;
+                    });
+                    incomplete();
+                    //   Navigator.pop(context, tr);
+                  }
+
+                  List<Trip> t = [];
+                  tr.forEach((element) {
+                    log("sunt in schimb de trips " +
+                        element.visited.toString());
+                    Trip tt = Trip(
+                        id: element.id,
+                        id_journey: element.id_journey,
+                        latitude: element.latitude!,
+                        longitude: element.longitude!,
+                        city: element.city!,
+                        country: element.country!,
+                        name: element.name!,
+                        visited: element.visited!);
+                    t.add(tt);
+                  });
+                  setState(() {
+                    log("sunt in setstae");
+                    widget.trips = t;
+                    widget.trips.forEach((element) {
+                      log(element.visited.toString());
+                    });
+                    widget.journey.start_date = tr[0].start_date!;
+                    widget.journey.end_date = tr[0].end_date!;
+                  });
+                  _getUserLocation();
+                } catch (_) {
+                  log(_.toString());
+                  log("exceptie navig curent");
+                }
+                //);
+                // },
+                //  Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) => ModifyPage(
+                //             journey: widget.journey, trips: widget.trips)));
+              },
             ),
             PopupMenuItem(
               value: 3,
@@ -495,7 +728,13 @@ class _CurrentTripState extends State<CurrentTrip> {
         isVisited = isVisited + " " + element.toString() + " \n";
         yes++;
       } else {
-        isNotVisited = isNotVisited + " " + element.toString() + " \n";
+        isNotVisited = isNotVisited +
+            " " +
+            element.city +
+            " - " +
+            element.country +
+            " - " +
+            element.name;
         no++;
       }
     });
@@ -504,8 +743,8 @@ class _CurrentTripState extends State<CurrentTrip> {
     } else
       finall = isVisited;
     finall = finall + "\n" + "\n";
-    if (no == trips.length) {
-      finall = finall + " None ";
+    if (no == widget.trips.length) {
+      finall = finall + isNotVisited + " None ";
     } else
       finall = finall + isNotVisited;
     return finall;

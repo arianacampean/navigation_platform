@@ -40,11 +40,6 @@ class _ProfilePageState extends State<ProfilePage> {
   late Color buttons_col;
   late Color color_border;
   late Color text_color;
-  //Image image = Image.asset('assets/images/user.png');
-  // late  File _image;
-  // File _image = NetworkImage(
-  //         "https://media.istockphoto.com/vectors/user-icon-flat-isolated-on-white-background-user-symbol-vector-vector-id1300845620?b=1&k=20&m=1300845620&s=170667a&w=0&h=JbOeyFgAc6-3jmptv6mzXpGcAd_8xqkQa_oUK2viFr8=")
-  //     as File;
 
   final first_name = TextEditingController();
   final last_name = TextEditingController();
@@ -58,10 +53,12 @@ class _ProfilePageState extends State<ProfilePage> {
     //var ceva=await DBProvider.db.
     setState(() => isLoading = true);
     dbHelper = DBProvider.db;
-    first_name.text = widget.user.first_name;
-    last_name.text = widget.user.last_name;
-    email.text = widget.user.email;
-    getData();
+    col_background = Colors.white;
+    buttons_col = Color.fromRGBO(159, 224, 172, 1);
+    color_border = Colors.white;
+    text_color = Colors.black;
+
+    //getData();
     isImage();
     log("asta e numele ." + photo.photo_name);
   }
@@ -136,116 +133,77 @@ class _ProfilePageState extends State<ProfilePage> {
                           style: TextStyle(fontSize: 20),
                         ),
                       ),
-                      Container(
-                          padding: EdgeInsets.fromLTRB(
-                              0, SizeConfig.screenHeight! * 0.05, 0, 0),
-                          child: Text("First name:",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w400))),
-                      Container(
-                          width: SizeConfig.screenWidth!,
-                          height: SizeConfig.screenHeight! * 0.08,
-                          alignment: Alignment.center,
-                          child: TextField(
-                              textAlignVertical: TextAlignVertical.top,
-                              textAlign: TextAlign.center,
-                              readOnly: true,
-                              controller: first_name,
-                              decoration: InputDecoration(
-                                fillColor: buttons_col,
-                                filled: true,
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: color_border),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: color_border),
-                                ),
-                                labelStyle: TextStyle(color: Colors.black),
-                              ),
-                              style: TextStyle(
-                                  color: text_color,
-                                  fontWeight: FontWeight.w400))),
-                      Divider(
-                        color: Colors.black,
-                        height: 25,
-                        thickness: 2,
-                        indent: SizeConfig.screenWidth! * 0.05,
-                        endIndent: SizeConfig.screenWidth! * 0.05,
+                      SizedBox(
+                        height: SizeConfig.screenHeight! * 0.04,
                       ),
                       Container(
-                          padding: EdgeInsets.fromLTRB(
-                              0, SizeConfig.screenHeight! * 0.02, 0, 0),
-                          child: Text("Last name:",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w400))),
-                      Container(
-                          width: SizeConfig.screenWidth!,
-                          height: SizeConfig.screenHeight! * 0.08,
-                          alignment: Alignment.center,
-                          child: TextField(
-                              textAlignVertical: TextAlignVertical.top,
-                              textAlign: TextAlign.center,
-                              readOnly: true,
-                              controller: last_name,
-                              decoration: InputDecoration(
-                                fillColor: buttons_col,
-                                filled: true,
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: color_border),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: color_border),
-                                ),
-                                labelStyle: TextStyle(color: Colors.black),
-                              ),
-                              style: TextStyle(
-                                  color: text_color,
-                                  fontWeight: FontWeight.w400))),
+                        width: SizeConfig.screenWidth! * 0.8,
+                        height: SizeConfig.screenHeight! * 0.07,
+                        alignment: Alignment.center,
+                        child: Text("First name:  " + widget.user.first_name,
+                            style: TextStyle(
+                                color: text_color,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w400)),
+                        decoration: BoxDecoration(
+                            color: buttons_col,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
+                      ),
                       Divider(
                         color: Colors.black,
                         height: 25,
                         thickness: 2,
-                        indent: SizeConfig.screenWidth! * 0.05,
-                        endIndent: SizeConfig.screenWidth! * 0.05,
+                        indent: SizeConfig.screenWidth! * 0.2,
+                        endIndent: SizeConfig.screenWidth! * 0.2,
+                      ),
+                      SizedBox(
+                        height: SizeConfig.screenHeight! * 0.04,
                       ),
                       Container(
-                          padding: EdgeInsets.fromLTRB(
-                              0, SizeConfig.screenHeight! * 0.02, 0, 0),
-                          child: Text("E-mail:",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w400))),
-                      Container(
-                          width: SizeConfig.screenWidth!,
-                          height: SizeConfig.screenHeight! * 0.08,
-                          alignment: Alignment.center,
-                          child: TextField(
-                              textAlignVertical: TextAlignVertical.top,
-                              textAlign: TextAlign.center,
-                              readOnly: true,
-                              controller: email,
-                              decoration: InputDecoration(
-                                fillColor: buttons_col,
-                                filled: true,
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: color_border),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: color_border),
-                                ),
-                                labelStyle: TextStyle(color: Colors.black),
-                              ),
-                              style: TextStyle(
-                                  color: text_color,
-                                  fontWeight: FontWeight.w400))),
+                        width: SizeConfig.screenWidth! * 0.8,
+                        height: SizeConfig.screenHeight! * 0.07,
+                        alignment: Alignment.center,
+                        child: Text("Last name:  " + widget.user.last_name,
+                            style: TextStyle(
+                                color: text_color,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w400)),
+                        decoration: BoxDecoration(
+                            color: buttons_col,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
+                      ),
                       Divider(
                         color: Colors.black,
                         height: 25,
                         thickness: 2,
-                        indent: SizeConfig.screenWidth! * 0.05,
-                        endIndent: SizeConfig.screenWidth! * 0.05,
+                        indent: SizeConfig.screenWidth! * 0.2,
+                        endIndent: SizeConfig.screenWidth! * 0.2,
+                      ),
+                      SizedBox(
+                        height: SizeConfig.screenHeight! * 0.04,
+                      ),
+                      Container(
+                        width: SizeConfig.screenWidth! * 0.8,
+                        height: SizeConfig.screenHeight! * 0.07,
+                        alignment: Alignment.center,
+                        child: Text("E-mail:  " + widget.user.email,
+                            style: TextStyle(
+                                color: text_color,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w400)),
+                        decoration: BoxDecoration(
+                            color: buttons_col,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
+                      ),
+                      Divider(
+                        color: Colors.black,
+                        height: 25,
+                        thickness: 2,
+                        indent: SizeConfig.screenWidth! * 0.2,
+                        endIndent: SizeConfig.screenWidth! * 0.2,
                       ),
                     ],
                   ),

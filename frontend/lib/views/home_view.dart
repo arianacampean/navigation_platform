@@ -9,7 +9,9 @@ import 'package:frontend/models/sizeConf.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/repository/app_repo.dart';
 import 'package:frontend/repository/repo.dart';
+import 'package:frontend/views/maps_views/principal_page_view.dart';
 import 'package:frontend/views/profile_view.dart';
+import 'package:frontend/views/recommendations_view.dart';
 import 'package:frontend/views/settings_view.dart';
 
 class HomePage extends StatefulWidget {
@@ -39,26 +41,26 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     repo = Repo.repo;
     appRepository = AppRepository(repo);
-    // col_background = Colors.white;
-    // buttons_col = Color.fromRGBO(159, 224, 172, 1);
-    // color_border = Colors.white;
-    // text_color = Colors.black;
+    col_background = Colors.white;
+    buttons_col = Color.fromRGBO(159, 224, 172, 1);
+    color_border = Colors.white;
+    text_color = Colors.black;
     getData();
   }
 
-  Future getSettings() async {
-    if (settings.theme == "light") {
-      col_background = Colors.white;
-      buttons_col = Color.fromRGBO(159, 224, 172, 1);
-      color_border = Colors.white;
-      text_color = Colors.black;
-    } else {
-      col_background = Color.fromRGBO(38, 41, 40, 1);
-      buttons_col = Color.fromRGBO(38, 41, 40, 1);
-      color_border = Colors.black;
-      text_color = Color.fromRGBO(159, 224, 172, 1);
-    }
-  }
+  // Future getSettings() async {
+  //   if (settings.theme == "light") {
+  //     col_background = Colors.white;
+  //     buttons_col = Color.fromRGBO(159, 224, 172, 1);
+  //     color_border = Colors.white;
+  //     text_color = Colors.black;
+  //   } else {
+  //     col_background = Color.fromRGBO(38, 41, 40, 1);
+  //     buttons_col = Color.fromRGBO(38, 41, 40, 1);
+  //     color_border = Colors.black;
+  //     text_color = Color.fromRGBO(159, 224, 172, 1);
+  //   }
+  // }
 
   Future getData() async {
     // log("iau datele de pe server pt prima pagina");
@@ -71,7 +73,7 @@ class _HomePageState extends State<HomePage> {
       //  exceptie.showAlertDialogExceptions(
       //context, "Eroare", "Nu se gasesc obiectele");
     }
-    getSettings();
+    //  getSettings();
     setState(() => isLoading = false);
   }
 
@@ -96,7 +98,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text("GFG Slider"),
+        title: Text("Home page"),
       ),
       body: Center(
         child: isLoading
@@ -234,7 +236,14 @@ class _HomePageState extends State<HomePage> {
                     Wrap(alignment: WrapAlignment.center, children: [
                       SizedBox(width: SizeConfig.screenWidth! * 0.02),
                       ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PrincipalPage(
+                                          user: widget.user,
+                                        )));
+                          },
                           child: Column(
                               // width: SizeConfig.screenWidth! * 0.1,
                               // height: SizeConfig.screenHeight! * 0.1,
@@ -262,7 +271,14 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(width: SizeConfig.screenWidth! * 0.01),
                       SizedBox(width: SizeConfig.screenWidth! * 0.01),
                       ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => RecommendationsPage(
+                                          user: widget.user,
+                                        )));
+                          },
                           child: Column(
                               // width: SizeConfig.screenWidth! * 0.1,
                               // height: SizeConfig.screenHeight! * 0.1,
@@ -350,7 +366,7 @@ class _HomePageState extends State<HomePage> {
                                           user: widget.user)));
                               setState(() {
                                 settings = setting;
-                                getSettings();
+                                // getSettings();
                               });
                             } catch (_) {
                               log(_.toString());

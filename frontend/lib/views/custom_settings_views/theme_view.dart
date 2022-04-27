@@ -90,15 +90,13 @@ class _ThemePageState extends State<ThemePage> {
               Container(
                 child: Container(
                     width: SizeConfig.screenWidth!,
-                    height: SizeConfig.screenHeight! * 0.09,
+                    height: SizeConfig.screenHeight! * 0.06,
                     // padding: EdgeInsets.fromLTRB(3, 10, 0, 3),
                     //alignment: AlignmentGeometry.lerp(a, b, t),
                     child: ListTile(
                       title: Text(
                         "Light",
-                        style: TextStyle(
-                            color: text_color,
-                            fontSize: SizeConfig.screenHeight! * 0.03),
+                        style: TextStyle(color: text_color, fontSize: 20),
                         //textAlign: TextAlign.left,
                       ),
                       leading: Radio(
@@ -125,15 +123,13 @@ class _ThemePageState extends State<ThemePage> {
               Container(
                 child: Container(
                     width: SizeConfig.screenWidth!,
-                    height: SizeConfig.screenHeight! * 0.09,
+                    height: SizeConfig.screenHeight! * 0.06,
                     // padding: EdgeInsets.fromLTRB(3, 10, 0, 3),
                     //alignment: AlignmentGeometry.lerp(a, b, t),
                     child: ListTile(
                       title: Text(
                         "Dark",
-                        style: TextStyle(
-                            color: text_color,
-                            fontSize: SizeConfig.screenHeight! * 0.03),
+                        style: TextStyle(color: text_color, fontSize: 20),
                         //textAlign: TextAlign.left,
                       ),
                       leading: Radio(

@@ -85,7 +85,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(title: Text("Settings")),
         body: WillPopScope(
             onWillPop: () async {
               Navigator.pop(context, widget.settings);
@@ -118,7 +118,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         },
                         child: Container(
                           width: SizeConfig.screenWidth!,
-                          height: SizeConfig.screenHeight! * 0.09,
+                          height: SizeConfig.screenHeight! * 0.06,
                           padding: EdgeInsets.fromLTRB(3, 10, 0, 3),
                           //alignment: AlignmentGeometry.lerp(a, b, t),
                           child: Wrap(
@@ -127,15 +127,13 @@ class _SettingsPageState extends State<SettingsPage> {
                                 Text(
                                   "Theme",
                                   style: TextStyle(
-                                      color: text_color,
-                                      fontSize:
-                                          SizeConfig.screenHeight! * 0.03),
+                                      color: text_color, fontSize: 20),
                                   //textAlign: TextAlign.left,
                                 ),
                                 Icon(
                                   Icons.arrow_forward_ios,
                                   color: text_color,
-                                  size: SizeConfig.screenHeight! * 0.035,
+                                  size: SizeConfig.screenHeight! * 0.025,
                                 )
                               ]),
                         ),
@@ -156,7 +154,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => SecurityPage(
-                                        settings: widget.settings,
+                                        // settings: widget.settings,
                                         user: widget.user)));
                             log(userr.password!);
                             setState(() {
@@ -169,7 +167,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         },
                         child: Container(
                           width: SizeConfig.screenWidth!,
-                          height: SizeConfig.screenHeight! * 0.09,
+                          height: SizeConfig.screenHeight! * 0.06,
                           padding: EdgeInsets.fromLTRB(3, 10, 0, 3),
                           //alignment: AlignmentGeometry.lerp(a, b, t),
                           child: Wrap(
@@ -178,120 +176,13 @@ class _SettingsPageState extends State<SettingsPage> {
                                 Text(
                                   "Security",
                                   style: TextStyle(
-                                      color: text_color,
-                                      fontSize:
-                                          SizeConfig.screenHeight! * 0.03),
+                                      color: text_color, fontSize: 20),
                                   //textAlign: TextAlign.left,
                                 ),
                                 Icon(
                                   Icons.arrow_forward_ios,
                                   color: text_color,
-                                  size: SizeConfig.screenHeight! * 0.035,
-                                )
-                              ]),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            primary: buttons_col,
-                            onPrimary: Colors.white,
-                            side: BorderSide(
-                              width: 1,
-                              color: color_border,
-                            ),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)))),
-                    ElevatedButton(
-                        onPressed: () {},
-                        child: Container(
-                          width: SizeConfig.screenWidth!,
-                          height: SizeConfig.screenHeight! * 0.09,
-                          padding: EdgeInsets.fromLTRB(3, 10, 0, 3),
-                          //alignment: AlignmentGeometry.lerp(a, b, t),
-                          child: Wrap(
-                              alignment: WrapAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Altceva",
-                                  style: TextStyle(
-                                      color: text_color,
-                                      fontSize:
-                                          SizeConfig.screenHeight! * 0.03),
-                                  //textAlign: TextAlign.left,
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  color: text_color,
-                                  size: SizeConfig.screenHeight! * 0.035,
-                                )
-                              ]),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            primary: buttons_col,
-                            onPrimary: Colors.white,
-                            side: BorderSide(
-                              width: 1,
-                              color: color_border,
-                            ),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)))),
-                    ElevatedButton(
-                        onPressed: () {},
-                        child: Container(
-                          width: SizeConfig.screenWidth!,
-                          height: SizeConfig.screenHeight! * 0.09,
-                          padding: EdgeInsets.fromLTRB(3, 10, 0, 3),
-                          //alignment: AlignmentGeometry.lerp(a, b, t),
-                          child: Wrap(
-                              alignment: WrapAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Altceva",
-                                  style: TextStyle(
-                                      color: text_color,
-                                      fontSize:
-                                          SizeConfig.screenHeight! * 0.03),
-                                  //textAlign: TextAlign.left,
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  color: text_color,
-                                  size: SizeConfig.screenHeight! * 0.035,
-                                )
-                              ]),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            primary: buttons_col,
-                            onPrimary: Colors.white,
-                            side: BorderSide(
-                              width: 1,
-                              color: color_border,
-                            ),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)))),
-                    ElevatedButton(
-                        onPressed: () {},
-                        child: Container(
-                          width: SizeConfig.screenWidth!,
-                          height: SizeConfig.screenHeight! * 0.09,
-                          padding: EdgeInsets.fromLTRB(3, 10, 0, 3),
-                          //alignment: AlignmentGeometry.lerp(a, b, t),
-                          child: Wrap(
-                              alignment: WrapAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Altceva",
-                                  style: TextStyle(
-                                      color: text_color,
-                                      fontSize:
-                                          SizeConfig.screenHeight! * 0.03),
-                                  //textAlign: TextAlign.left,
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  color: text_color,
-                                  size: SizeConfig.screenHeight! * 0.035,
+                                  size: SizeConfig.screenHeight! * 0.025,
                                 )
                               ]),
                         ),
