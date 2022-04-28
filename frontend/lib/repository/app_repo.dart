@@ -123,6 +123,17 @@ class AppRepository {
     }
   }
 
+  Future updateTrip(Trip trips) async {
+    log('update app_repo');
+    final client = _apiRequest;
+    try {
+      await client.updateTrip(trips.id!, trips);
+    } catch (_) {
+      log('exceptie update ');
+      rethrow;
+    }
+  }
+
   Future updateJouneyandTrips(Journey j, List<Trip> trips) async {
     log('update app_repo');
     final client = _apiRequest;

@@ -73,22 +73,38 @@ class _CurrentTripState extends State<CurrentTrip> {
 
     _getUserLocation();
     const duration = Duration(minutes: 1);
-    //Timer.periodic(duration, (Timer t) => _arrived());
+    Timer.periodic(duration, (Timer t) => _arrived());
   }
 
   void _arrived() async {
     log("calculez");
     _location.onLocationChanged.listen((l) async {
       setState(() {
-        // currentPostion = LatLng(l.latitude!, l.longitude!);
-        currentPostion = LatLng(46.7712, 23.6236);
+        var current = LatLng(l.latitude!, l.longitude!);
+        if (current.latitude != currentPostion.latitude ||
+            current.longitude != currentPostion.longitude)
+          currentPostion = current;
+        // log(currentPostion.latitude.toString() +
+        //     " " +
+        //     currentPostion.longitude.toString());
       });
+
       var dir = await DirectionsRepo()
           .getDirections(origin: currentPostion, destination: finalPosition);
+      // log("prima" + dir!.totalDuration);
       setState(() {
-        directions != dir;
+        directions = dir!;
       });
-      log(directions.totalDuration);
+      log(transformInMinutes(dir!.totalDuration).toString());
+
+      if (transformInMinutes(dir.totalDuration) < 30) {
+        log("am intrat in if");
+        setState(() {
+          log("sunt in setstate");
+          arrivedAtDestination = true;
+        });
+        log(arrivedAtDestination.toString());
+      }
     });
   }
 
@@ -141,7 +157,7 @@ class _CurrentTripState extends State<CurrentTrip> {
             return false;
           },
           child: Center(
-              child: trip.name == ""
+              child: isLoading
                   ? CircularProgressIndicator()
                   : Container(
                       // padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
@@ -168,8 +184,7 @@ class _CurrentTripState extends State<CurrentTrip> {
                             },
                             polylines: {
                               Polyline(
-                                polylineId:
-                                    const PolylineId('overview_polyline'),
+                                polylineId: const PolylineId('poly'),
                                 color: Colors.blue,
                                 width: 5,
                                 points: directions.polylinePoints
@@ -252,12 +267,34 @@ class _CurrentTripState extends State<CurrentTrip> {
                                               MainAxisAlignment.spaceEvenly,
                                           children: [
                                             TextButton(
-                                                onPressed: () {},
+                                                onPressed: () {
+                                                  setState(() {
+                                                    arrivedAtDestination =
+                                                        false;
+                                                  });
+                                                },
                                                 child: Text("No",
                                                     style: TextStyle(
                                                         fontSize: 20))),
                                             TextButton(
-                                                onPressed: () {},
+                                                onPressed: () async {
+                                                  trip.visited = true;
+                                                  await appRepository
+                                                      .updateTrip(trip);
+
+                                                  setState(() {
+                                                    isLoading = true;
+                                                    arrivedAtDestination =
+                                                        false;
+                                                    firstMesage = true;
+                                                  });
+                                                  widget.trips
+                                                      .forEach((element) {
+                                                    if (element.id == trip.id)
+                                                      element.visited = true;
+                                                  });
+                                                  addRoute();
+                                                },
                                                 child: Text("Yes",
                                                     style: TextStyle(
                                                         fontSize: 20)))
@@ -372,6 +409,7 @@ class _CurrentTripState extends State<CurrentTrip> {
 
     setState(() {
       currentPostion = LatLng(position.latitude, position.longitude);
+      //  currentPostion = LatLng(46.7422, 23.4840);
       firstMesage = true;
     });
     addRoute();
@@ -387,42 +425,48 @@ class _CurrentTripState extends State<CurrentTrip> {
       late Trip t;
       var dir;
       int contor = 0;
+      try {
+        widget.trips.forEach((element) async {
+          log("sunt inforeach");
+          LatLng position = LatLng(element.latitude, element.longitude);
+          //daca a terminat de vizitata tot pune condtitie
 
-      widget.trips.forEach((element) async {
-        log("sunt inforeach");
-        LatLng position = LatLng(element.latitude, element.longitude);
-        //daca a terminat de vizitata tot pune condtitie
-
-        if (element.visited == false) {
-          setState(() {
-            index++;
-          });
-          log(element.visited.toString() + " " + element.name);
-          dir = await DirectionsRepo()
-              .getDirections(origin: currentPostion, destination: position);
-
-          log(dir!.totalDuration + " " + element.name);
-          if (transformInMinutes(dir!.totalDuration) < minTime) {
-            log("sunt in if");
-            log(transformInMinutes(dir!.totalDuration).toString());
-            t = element;
-            minTime = transformInMinutes(dir!.totalDuration);
-            contor++;
-
+          if (element.visited == false) {
             setState(() {
-              directions = dir!;
-              log("am initializat tripul");
-              finalPosition = LatLng(element.latitude, element.longitude);
-              destination = Marker(
-                  markerId: const MarkerId('destination'),
-                  infoWindow: const InfoWindow(title: 'Destination'),
-                  position: LatLng(t.latitude, t.longitude));
-              trip = t;
+              index++;
             });
-          } else
-            sleep(Duration(milliseconds: 100));
-        }
-      });
+            log(element.visited.toString() + " " + element.name);
+            dir = await DirectionsRepo()
+                .getDirections(origin: currentPostion, destination: position);
+
+            log(dir!.totalDuration + " " + element.name);
+            if (transformInMinutes(dir!.totalDuration) < minTime) {
+              log("sunt in if");
+              log(transformInMinutes(dir!.totalDuration).toString());
+              t = element;
+              minTime = transformInMinutes(dir!.totalDuration);
+              contor++;
+
+              setState(() {
+                directions = dir!;
+                log("am initializat tripul");
+                finalPosition = LatLng(element.latitude, element.longitude);
+                destination = Marker(
+                    markerId: const MarkerId('destination'),
+                    infoWindow: const InfoWindow(title: 'Destination'),
+                    position: LatLng(t.latitude, t.longitude));
+                trip = t;
+                isLoading = false;
+              });
+            } else
+              sleep(Duration(milliseconds: 100));
+          }
+        });
+      } catch (_) {
+        ex.showAlertDialogExceptions(
+            context, "Error", "The routes could not be loaded");
+        Navigator.pop(context);
+      }
       if (index == 0) {
         incomplete();
       }

@@ -39,6 +39,7 @@ class _ModifyPageState extends State<ModifyPage> {
   List<Trip> deletedTrips = [];
   List<Trip> addedTrips = [];
   List<TripDate> tripdate = [];
+  List<Journey> journeys = [];
 
   @override
   void initState() {
@@ -50,7 +51,21 @@ class _ModifyPageState extends State<ModifyPage> {
     //  widget.journey.forEach((element) {
     //trips.add(element.trip);
     //  });
+
+    getData();
     isLoading = false;
+  }
+
+  Future getData() async {
+    try {
+      journeys = await appRepository.getJouneysByUserId(widget.user);
+    } catch (_) {
+      log(_.toString());
+      log("eroare la luat journeys");
+    }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -196,8 +211,9 @@ class _ModifyPageState extends State<ModifyPage> {
                                           children: [
                                             Text("Visited: ",
                                                 style: TextStyle(fontSize: 20)),
-                                            Padding(
-                                                padding: EdgeInsets.all(10),
+                                            Align(
+                                                alignment: Alignment.center,
+                                                // padding: EdgeInsets.all(10),
                                                 child:
                                                     DropdownButtonHideUnderline(
                                                         child: DropdownButton<
@@ -376,25 +392,29 @@ class _ModifyPageState extends State<ModifyPage> {
             // elevation: 7,
             onPressed: () async {
               try {
-                if (widget.trips.length != 0) {
-                  await appRepository.updateJouneyandTrips(
-                      widget.journey, widget.trips);
-                  widget.trips.forEach((element) {
-                    TripDate tr = TripDate(
-                        id: element.id,
-                        id_journey: element.id_journey,
-                        latitude: element.latitude,
-                        longitude: element.longitude,
-                        city: element.city,
-                        country: element.country,
-                        name: element.name,
-                        visited: element.visited,
-                        start_date: widget.journey.start_date,
-                        end_date: widget.journey.end_date);
-                    tripdate.add(tr);
-                  });
+                if (verifyDate(
+                        widget.journey.start_date, widget.journey.end_date) ==
+                    true) {
+                  if (widget.trips.length != 0) {
+                    await appRepository.updateJouneyandTrips(
+                        widget.journey, widget.trips);
+                    widget.trips.forEach((element) {
+                      TripDate tr = TripDate(
+                          id: element.id,
+                          id_journey: element.id_journey,
+                          latitude: element.latitude,
+                          longitude: element.longitude,
+                          city: element.city,
+                          country: element.country,
+                          name: element.name,
+                          visited: element.visited,
+                          start_date: widget.journey.start_date,
+                          end_date: widget.journey.end_date);
+                      tripdate.add(tr);
+                    });
+                  }
+                  Navigator.pop(context, tripdate);
                 }
-                Navigator.pop(context, tripdate);
               } catch (_) {
                 log(_.toString());
               }
@@ -531,14 +551,17 @@ class _ModifyPageState extends State<ModifyPage> {
     DateTime date;
     DateTime firstdate;
     DateTime lastDate;
+    String helpText = "";
     if (st == 'start') {
       date = widget.journey.start_date;
       firstdate = DateTime(2020);
       lastDate = DateTime.now();
+      helpText = "Select the date when you start your trip";
     } else {
       date = widget.journey.end_date;
       firstdate = DateTime.now();
       lastDate = DateTime(2025);
+      helpText = "Select the date when you end your trip";
     }
 
     final DateTime? selected = await showDatePicker(
@@ -546,7 +569,8 @@ class _ModifyPageState extends State<ModifyPage> {
         initialDate: date,
         firstDate: firstdate,
         lastDate: lastDate,
-        helpText: "Select the date when you start your trip");
+        helpText: helpText);
+
     if (selected != null)
       setState(() {
         if (st == "start") {
@@ -554,5 +578,53 @@ class _ModifyPageState extends State<ModifyPage> {
         } else
           widget.journey.end_date = selected;
       });
+  }
+
+  bool verifyDate(
+      DateTime selectedDate_to_Start, DateTime selectedDate_to_End) {
+    int count = 0;
+    bool same = false;
+
+    journeys.forEach((element) {
+      if (element.start_date.day == selectedDate_to_Start.day &&
+          element.start_date.month == selectedDate_to_Start.month &&
+          element.start_date.year == selectedDate_to_Start.year &&
+          element.end_date.day == selectedDate_to_End.day &&
+          element.end_date.month == selectedDate_to_End.month &&
+          element.end_date.year == selectedDate_to_End.year) same = true;
+
+      if (element.start_date.isBefore(selectedDate_to_Start) &&
+          element.end_date.isBefore(selectedDate_to_End) &&
+          element.end_date.isAfter(selectedDate_to_Start)) {
+        count++;
+        log("if 1");
+      }
+
+      if (element.start_date.isAfter(selectedDate_to_Start) &&
+          element.end_date.isBefore(selectedDate_to_End)) {
+        count++;
+        log("if 2");
+      }
+
+      if (element.start_date.isAfter(selectedDate_to_Start) &&
+          element.end_date.isAfter(selectedDate_to_End) &&
+          element.start_date.isBefore(selectedDate_to_End)) {
+        log("if 3");
+        count++;
+      }
+
+      if (element.start_date.isBefore(selectedDate_to_Start) &&
+          element.end_date.isAfter(selectedDate_to_End)) {
+        log("if 4");
+        count++;
+      }
+    });
+    if (same == true) return true;
+    if (count != 0) {
+      ex.showAlertDialogExceptions(context, "Information",
+          "You alerady have a trip in those dates. Please add another ones");
+      return false;
+    }
+    return true;
   }
 }

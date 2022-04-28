@@ -58,7 +58,13 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       journeys = await appRepository.getJouneysByUserId(widget.user);
       journeys.forEach((element) async {
         if (element.start_date.isBefore(currentdate) &&
-            element.end_date.isAfter(currentdate)) {
+                element.end_date.isAfter(currentdate) ||
+            (element.start_date.day == currentdate.day &&
+                element.start_date.month == currentdate.month &&
+                element.start_date.year == currentdate.year) ||
+            (element.end_date.day == currentdate.day &&
+                element.end_date.month == currentdate.month &&
+                element.end_date.year == currentdate.year)) {
           currentJourney = element;
           log("avem!!!!");
           trips = await appRepository.getTripsByJouneyId(currentJourney);

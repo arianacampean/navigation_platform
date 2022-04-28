@@ -447,11 +447,8 @@ class _AddTripState extends State<AddTrip> {
           });
       }
       int count = 0;
-      // log(selectedDate_to_Start.toString() +
-      //     " " +
-      //     selectedDate_to_End.toString());
+
       journeys.forEach((element) {
-        // log(element.start_date.toString() + " " + element.end_date.toString());
         if (element.start_date.isBefore(selectedDate_to_Start) &&
             element.end_date.isBefore(selectedDate_to_End) &&
             element.end_date.isAfter(selectedDate_to_Start)) {
