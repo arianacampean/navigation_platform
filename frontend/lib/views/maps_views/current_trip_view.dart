@@ -1,8 +1,10 @@
-import 'dart:developer';
+import 'dart:developer' as dev;
 import 'dart:io';
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/models/directions.dart';
 import 'package:frontend/models/exceptie.dart';
 import 'package:frontend/models/journey.dart';
@@ -45,6 +47,8 @@ class _CurrentTripState extends State<CurrentTrip> {
   bool firstMesage = true;
   List<TripDate> tripdate = [];
   bool arrivedAtDestination = false;
+  Map<int, int> order = {};
+  late Timer _timer;
   // List<Trip> trips = [];
   late Trip trip = Trip(
       latitude: 0,
@@ -60,52 +64,90 @@ class _CurrentTripState extends State<CurrentTrip> {
   bool readToStart = false;
   Location _location = Location();
   late LatLng finalPosition;
+  late Timer timer;
+  bool stopEntering = false;
+  late String mapStyle;
+  bool stop = false;
 
   @override
   void initState() {
     super.initState();
+    isLoading = true;
+    _loadMapStyles();
     repo = Repo.repo;
     ex = Exceptie.ex;
 
     appRepository = AppRepository(repo);
 
-    isLoading = true;
-
     _getUserLocation();
-    const duration = Duration(minutes: 1);
-    Timer.periodic(duration, (Timer t) => _arrived());
+
+    try {
+      // const duration = Duration(seconds: 30);
+      // timer = Timer(duration, () => _arrived());
+      startTimer();
+
+      // _arrived();
+
+      //timer = Timer(duration, () => _arrived());
+    } catch (_) {
+      dev.log("functia mai merge");
+    }
   }
 
-  void _arrived() async {
-    log("calculez");
-    _location.onLocationChanged.listen((l) async {
-      setState(() {
-        var current = LatLng(l.latitude!, l.longitude!);
-        if (current.latitude != currentPostion.latitude ||
-            current.longitude != currentPostion.longitude)
-          currentPostion = current;
-        // log(currentPostion.latitude.toString() +
-        //     " " +
-        //     currentPostion.longitude.toString());
-      });
+  Future _loadMapStyles() async {
+    mapStyle = await rootBundle.loadString('assets/map_styles/retro.json');
+    // _lightMapStyle = await rootBundle.loadString('assets/map_styles/light.json');
+  }
 
-      var dir = await DirectionsRepo()
-          .getDirections(origin: currentPostion, destination: finalPosition);
-      // log("prima" + dir!.totalDuration);
-      setState(() {
-        directions = dir!;
+  void _arrived() {
+    if (firstMesage == false && arrivedAtDestination == false) {
+      dev.log("calculez");
+      var loc;
+      // _location.onLocationChanged.
+      loc = _location.onLocationChanged.listen((l) async {
+        try {
+          setState(() {
+            var current = LatLng(l.latitude!, l.longitude!);
+            if (current.latitude != currentPostion.latitude ||
+                current.longitude != currentPostion.longitude)
+              currentPostion = current;
+          });
+          var dir = await DirectionsRepo().getDirections(
+              origin: currentPostion, destination: finalPosition);
+          // log("prima" + dir!.totalDuration);
+          setState(() {
+            directions = dir!;
+          });
+        } catch (_) {
+          dev.log("fct merge");
+          loc.cancel();
+        }
       });
-      log(transformInMinutes(dir!.totalDuration).toString());
-
-      if (transformInMinutes(dir.totalDuration) < 30) {
-        log("am intrat in if");
+      double nr = getDistanceFromLatLonInKm(currentPostion, finalPosition);
+      if (nr <= 20) {
+        dev.log("da");
         setState(() {
-          log("sunt in setstate");
-          arrivedAtDestination = true;
+          if (stopEntering == false) arrivedAtDestination = true;
         });
-        log(arrivedAtDestination.toString());
-      }
-    });
+      } else
+        dev.log("nu");
+    }
+  }
+
+  void startTimer() {
+    const oneSec = const Duration(seconds: 30);
+    _timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (stop == true) {
+          // timer.cancel();
+          dev.log("te-am oprit");
+          //});
+        } else {
+          _arrived();
+        }
+      },
+    );
   }
 
   @override
@@ -123,7 +165,10 @@ class _CurrentTripState extends State<CurrentTrip> {
                       CameraPosition(target: currentPostion, zoom: 19),
                     )),
                 style: TextButton.styleFrom(primary: Colors.white),
-                child: Text("Current position")),
+                child: Text(
+                  "Current position",
+                  style: TextStyle(color: Color.fromRGBO(221, 209, 199, 1)),
+                )),
             if (trip.name != "")
               TextButton(
                   onPressed: () =>
@@ -131,7 +176,9 @@ class _CurrentTripState extends State<CurrentTrip> {
                         CameraPosition(target: destination.position, zoom: 19),
                       )),
                   style: TextButton.styleFrom(primary: Colors.white),
-                  child: Text("Destination"))
+                  child: Text("Destination",
+                      style:
+                          TextStyle(color: Color.fromRGBO(221, 209, 199, 1))))
           ],
         ),
         body: WillPopScope(
@@ -152,13 +199,19 @@ class _CurrentTripState extends State<CurrentTrip> {
                 tripdate.add(tr);
               });
             }
+            setState(() {
+              _timer.cancel();
+              stop = true;
+            });
             Navigator.pop(context, tripdate);
             //  Navigator.pop(context);
             return false;
           },
           child: Center(
               child: isLoading
-                  ? CircularProgressIndicator()
+                  ? CircularProgressIndicator(
+                      backgroundColor: Color.fromRGBO(221, 209, 199, 1),
+                    )
                   : Container(
                       // padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
 
@@ -172,6 +225,7 @@ class _CurrentTripState extends State<CurrentTrip> {
                               zoom: 15,
                             ),
                             //myLocationButtonEnabled: true,
+                            zoomControlsEnabled: false,
                             myLocationEnabled: true,
                             mapType: MapType.normal,
 
@@ -181,17 +235,69 @@ class _CurrentTripState extends State<CurrentTrip> {
                               setState(() {
                                 _controller = controller;
                               });
+                              //   _controller.setMapStyle(mapStyle);
                             },
                             polylines: {
                               Polyline(
                                 polylineId: const PolylineId('poly'),
-                                color: Colors.blue,
+                                color: Color.fromRGBO(75, 74, 103, 1),
                                 width: 5,
                                 points: directions.polylinePoints
                                     .map((e) => LatLng(e.latitude, e.longitude))
                                     .toList(),
                               )
                             },
+                          ),
+                          Positioned(
+                            child: Column(
+                              children: [
+                                Container(
+                                  alignment: Alignment.center,
+                                  height: SizeConfig.screenHeight! * 0.05,
+                                  width: MediaQuery.of(context).size.width,
+                                  //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                                  decoration: BoxDecoration(
+                                      color: Color.fromRGBO(75, 74, 103, 1),
+                                      image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: AssetImage(
+                                              'assets/images/map.png'),
+                                          colorFilter: ColorFilter.mode(
+                                            Colors.white.withOpacity(0.12),
+                                            BlendMode.modulate,
+                                          )),
+                                      borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(50),
+                                          bottomRight: Radius.circular(50))),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            child: Column(
+                              children: [
+                                Container(
+                                  alignment: Alignment.center,
+                                  height: SizeConfig.screenHeight! * 0.05,
+                                  width: MediaQuery.of(context).size.width,
+                                  //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                                  decoration: BoxDecoration(
+                                      color: Color.fromRGBO(141, 181, 128, 1),
+                                      image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: AssetImage(
+                                              'assets/images/map.png'),
+                                          colorFilter: ColorFilter.mode(
+                                            Colors.white.withOpacity(0.2),
+                                            BlendMode.modulate,
+                                          )),
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(50),
+                                          topRight: Radius.circular(50))),
+                                ),
+                              ],
+                            ),
                           ),
                           if (firstMesage == true)
                             // ex.showAlertDialogExceptions(context, "mdf", "df"),
@@ -206,19 +312,34 @@ class _CurrentTripState extends State<CurrentTrip> {
                                     width: SizeConfig.screenWidth! * 0.7,
                                     // height: SizeConfig.screenHeight! * 0.15,
                                     decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: Color.fromRGBO(75, 74, 103, 1),
+                                        // border: Border.all(
+                                        //   //color: Color.fromRGBO(126, 137, 135, 1),
+                                        //   color:
+                                        //       Color.fromRGBO(141, 181, 128, 1),
+                                        //   width: 2,
+                                        // ),
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(20))),
                                     child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
                                       children: [
                                         SizedBox(height: 10),
                                         Text("Next",
-                                            style: TextStyle(fontSize: 25)),
+                                            style: TextStyle(
+                                                fontSize: 25,
+                                                color: Color.fromRGBO(
+                                                    221, 209, 199, 1))),
                                         SizedBox(height: 20),
                                         Text(
                                           "The nearest destination is: " +
                                               trip.name,
-                                          style: TextStyle(fontSize: 20),
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontSize: 23,
+                                              color: Color.fromRGBO(
+                                                  221, 209, 199, 1)),
                                         ),
                                         SizedBox(height: 20),
                                         TextButton(
@@ -227,8 +348,11 @@ class _CurrentTripState extends State<CurrentTrip> {
                                                 firstMesage = false;
                                               });
                                             },
-                                            child: Text("ok",
-                                                style: TextStyle(fontSize: 20)))
+                                            child: Text("Ok",
+                                                style: TextStyle(
+                                                    fontSize: 23,
+                                                    color: Color.fromRGBO(
+                                                        221, 209, 199, 1))))
                                       ],
                                     ),
                                   ),
@@ -248,18 +372,24 @@ class _CurrentTripState extends State<CurrentTrip> {
                                     width: SizeConfig.screenWidth! * 0.7,
                                     // height: SizeConfig.screenHeight! * 0.15,
                                     decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: Color.fromRGBO(75, 74, 103, 1),
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(20))),
                                     child: Column(
                                       children: [
                                         SizedBox(height: 10),
                                         Text("Information",
-                                            style: TextStyle(fontSize: 25)),
+                                            style: TextStyle(
+                                                fontSize: 25,
+                                                color: Color.fromRGBO(
+                                                    221, 209, 199, 1))),
                                         SizedBox(height: 20),
                                         Text(
                                           "Have you reached your destination? ",
-                                          style: TextStyle(fontSize: 20),
+                                          style: TextStyle(
+                                              fontSize: 23,
+                                              color: Color.fromRGBO(
+                                                  221, 209, 199, 1)),
                                         ),
                                         SizedBox(height: 20),
                                         Row(
@@ -275,7 +405,12 @@ class _CurrentTripState extends State<CurrentTrip> {
                                                 },
                                                 child: Text("No",
                                                     style: TextStyle(
-                                                        fontSize: 20))),
+                                                        fontSize: 23,
+                                                        color: Color.fromRGBO(
+                                                            221,
+                                                            209,
+                                                            199,
+                                                            1)))),
                                             TextButton(
                                                 onPressed: () async {
                                                   trip.visited = true;
@@ -287,17 +422,22 @@ class _CurrentTripState extends State<CurrentTrip> {
                                                     arrivedAtDestination =
                                                         false;
                                                     firstMesage = true;
+                                                    stopEntering = true;
+                                                    index = 0;
                                                   });
                                                   widget.trips
                                                       .forEach((element) {
                                                     if (element.id == trip.id)
                                                       element.visited = true;
                                                   });
+
                                                   addRoute();
                                                 },
                                                 child: Text("Yes",
                                                     style: TextStyle(
-                                                        fontSize: 20)))
+                                                        fontSize: 23,
+                                                        color: Color.fromRGBO(
+                                                            221, 209, 199, 1))))
                                           ],
                                         )
                                       ],
@@ -319,18 +459,24 @@ class _CurrentTripState extends State<CurrentTrip> {
                                     width: SizeConfig.screenWidth! * 0.7,
                                     // height: SizeConfig.screenHeight! * 0.15,
                                     decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: Color.fromRGBO(75, 74, 103, 1),
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(20))),
                                     child: Column(
                                       children: [
                                         SizedBox(height: 10),
                                         Text("Informations",
-                                            style: TextStyle(fontSize: 25)),
+                                            style: TextStyle(
+                                                fontSize: 25,
+                                                color: Color.fromRGBO(
+                                                    221, 209, 199, 1))),
                                         SizedBox(height: 20),
                                         Text(
                                           "You don't have any destinations left to visit",
-                                          style: TextStyle(fontSize: 20),
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              color: Color.fromRGBO(
+                                                  221, 209, 199, 1)),
                                         ),
                                         SizedBox(height: 20),
                                         TextButton(
@@ -340,8 +486,11 @@ class _CurrentTripState extends State<CurrentTrip> {
                                                 firstMesage = false;
                                               });
                                             },
-                                            child: Text("ok",
-                                                style: TextStyle(fontSize: 20)))
+                                            child: Text("Ok",
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: Color.fromRGBO(
+                                                        221, 209, 199, 1))))
                                       ],
                                     ),
                                   ),
@@ -350,12 +499,12 @@ class _CurrentTripState extends State<CurrentTrip> {
                             ),
                           if (trip.name != "key")
                             Positioned(
-                                top: 20,
+                                top: 80,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 6.0, horizontal: 12.0),
                                   decoration: BoxDecoration(
-                                    color: Colors.blue,
+                                    color: Color.fromRGBO(75, 74, 103, 1),
                                     borderRadius: BorderRadius.circular(20.0),
                                     boxShadow: const [
                                       BoxShadow(
@@ -369,19 +518,20 @@ class _CurrentTripState extends State<CurrentTrip> {
                                     style: const TextStyle(
                                         fontSize: 18.0,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.white),
+                                        color:
+                                            Color.fromRGBO(221, 209, 199, 1)),
                                   ),
                                 )),
                           Positioned(
                               // alignment: Alignment(-0.9, -0.81),
-                              top: 20,
+                              top: 80,
                               left: 20,
                               child: Container(
                                 width: 60,
                                 height: 40,
                                 child: _popUpMenuButton(),
                                 decoration: BoxDecoration(
-                                  color: Colors.blue,
+                                  color: Color.fromRGBO(75, 74, 103, 1),
                                   borderRadius: BorderRadius.circular(20.0),
                                   boxShadow: const [
                                     BoxShadow(
@@ -398,7 +548,7 @@ class _CurrentTripState extends State<CurrentTrip> {
   }
 
   void _getUserLocation() async {
-    log("sunt in getUserLoc");
+    dev.log("sunt in getUserLoc");
     readToStart = false;
     setState(() {
       index = 0;
@@ -415,63 +565,170 @@ class _CurrentTripState extends State<CurrentTrip> {
     addRoute();
   }
 
-  Future<void> addRoute() async {
-    if (widget.trips.length == 0) {
-      incomplete();
-    } else {
-      log("sunt in add route");
+  addRoute() {
+    Trip t = calculateNextDestination();
+    calculateRoute(t);
+  }
 
-      int minTime = 3200000000;
-      late Trip t;
-      var dir;
-      int contor = 0;
-      try {
-        widget.trips.forEach((element) async {
-          log("sunt inforeach");
-          LatLng position = LatLng(element.latitude, element.longitude);
-          //daca a terminat de vizitata tot pune condtitie
-
-          if (element.visited == false) {
-            setState(() {
-              index++;
-            });
-            log(element.visited.toString() + " " + element.name);
-            dir = await DirectionsRepo()
-                .getDirections(origin: currentPostion, destination: position);
-
-            log(dir!.totalDuration + " " + element.name);
-            if (transformInMinutes(dir!.totalDuration) < minTime) {
-              log("sunt in if");
-              log(transformInMinutes(dir!.totalDuration).toString());
-              t = element;
-              minTime = transformInMinutes(dir!.totalDuration);
-              contor++;
-
-              setState(() {
-                directions = dir!;
-                log("am initializat tripul");
-                finalPosition = LatLng(element.latitude, element.longitude);
-                destination = Marker(
-                    markerId: const MarkerId('destination'),
-                    infoWindow: const InfoWindow(title: 'Destination'),
-                    position: LatLng(t.latitude, t.longitude));
-                trip = t;
-                isLoading = false;
-              });
-            } else
-              sleep(Duration(milliseconds: 100));
-          }
+  Trip calculateNextDestination() {
+    Trip nextTrip = Trip(
+        latitude: 0,
+        longitude: 0,
+        city: " ",
+        country: " ",
+        name: " ",
+        visited: false);
+    var dir;
+    widget.trips.forEach((element) {
+      dev.log("sunt inforeach");
+      LatLng position = LatLng(element.latitude, element.longitude);
+      //daca a terminat de vizitata tot pune condtitie
+      double min = 32000000000000;
+      if (element.visited == false) {
+        setState(() {
+          index++;
         });
+        dev.log(element.visited.toString() + " " + element.name);
+
+        double calc = getDistanceFromLatLonInKm(currentPostion, position);
+        dev.log(calc.toString() + " " + element.name);
+        if (calc < min) {
+          min = calc;
+          nextTrip = element;
+        }
+      }
+    });
+    if (index == 0) {
+      incomplete();
+    }
+    return nextTrip;
+  }
+
+  calculateRoute(Trip nexttrip) async {
+    if (nexttrip.longitude != 0) {
+      var dir;
+      LatLng position = LatLng(nexttrip.latitude, nexttrip.longitude);
+      try {
+        dir = await DirectionsRepo()
+            .getDirections(origin: currentPostion, destination: position);
       } catch (_) {
         ex.showAlertDialogExceptions(
             context, "Error", "The routes could not be loaded");
         Navigator.pop(context);
       }
-      if (index == 0) {
-        incomplete();
-      }
+
+      setState(() {
+        directions = dir!;
+        dev.log("am initializat tripul");
+        finalPosition = LatLng(nexttrip.latitude, nexttrip.longitude);
+        destination = Marker(
+            // icon: BitmapDescriptor.defaultMarkerWithHue(
+            //     BitmapDescriptor.hueGreen),
+            markerId: const MarkerId('destination'),
+            infoWindow: const InfoWindow(title: 'Destination'),
+            position: LatLng(nexttrip.latitude, nexttrip.longitude));
+        trip = nexttrip;
+        isLoading = false;
+        arrivedAtDestination = false;
+        stopEntering = false;
+      });
     }
   }
+
+  double getDistanceFromLatLonInKm(LatLng current, LatLng destin) {
+    var R = 6371; // Radius of the earth in km
+    var dLat = deg2rad(destin.latitude - current.latitude); // deg2rad below
+    var dLon = deg2rad(destin.longitude - current.longitude);
+    var a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(deg2rad(current.latitude)) *
+            cos(deg2rad(destin.latitude)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+    var c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    var d = R * c; // Distance in km
+    return d;
+  }
+
+  double deg2rad(deg) {
+    return deg * (pi / 180);
+  }
+
+  // Future<void> addRoute() async {
+  //   if (widget.trips.length == 0) {
+  //     incomplete();
+  //   } else {
+  //     dev.log("sunt in add route");
+
+  //     int minTime = 3200000000;
+  //     late Trip t;
+  //     var dir;
+  //     int contor = 0;
+  //     int findVisited = 0;
+  //     try {
+  //       widget.trips.forEach((element) async {
+  //         dev.log("sunt inforeach");
+  //         LatLng position = LatLng(element.latitude, element.longitude);
+  //         //daca a terminat de vizitata tot pune condtitie
+
+  //         if (element.visited == false) {
+  //           setState(() {
+  //             index++;
+  //           });
+  //           dev.log(element.visited.toString() + " " + element.name);
+  //           try {
+  //             dir = await DirectionsRepo()
+  //                 .getDirections(origin: currentPostion, destination: position);
+  //           } catch (_) {
+  //             ex.showAlertDialogExceptions(
+  //                 context, "Error", "The routes could not be loaded");
+  //             Navigator.pop(context);
+  //           }
+  //           //  log(dir!.totalDuration + " " + element.name);
+  //           int time = transformInMinutes(dir!.totalDuration);
+  //           // final add = <int, int>{1: time, 2: element.id!};
+
+  //           if (time < minTime) {
+  //             dev.log("sunt in if");
+  //             dev.log(transformInMinutes(dir!.totalDuration).toString());
+  //             t = element;
+  //             minTime = transformInMinutes(dir!.totalDuration);
+  //             contor++;
+
+  //             setState(() {
+  //               directions = dir!;
+  //               dev.log("am initializat tripul");
+  //               finalPosition = LatLng(element.latitude, element.longitude);
+  //               destination = Marker(
+  //                   // icon: BitmapDescriptor.defaultMarkerWithHue(
+  //                   //     BitmapDescriptor.hueGreen),
+  //                   markerId: const MarkerId('destination'),
+  //                   infoWindow: const InfoWindow(title: 'Destination'),
+  //                   position: LatLng(t.latitude, t.longitude));
+  //               trip = t;
+  //               isLoading = false;
+  //               arrivedAtDestination = false;
+  //               stopEntering = false;
+  //             });
+  //           } else
+  //             sleep(Duration(milliseconds: 100));
+  //           findVisited++;
+  //         } else
+  //           findVisited++;
+  //       });
+  //       if (findVisited == widget.trips.length)
+  //         setState(() {
+  //           // isLoading = false;
+  //         });
+  //     } catch (_) {
+  //       ex.showAlertDialogExceptions(
+  //           context, "Error", "The routes could not be loaded");
+  //       Navigator.pop(context);
+  //     }
+  //     if (index == 0) {
+  //       incomplete();
+  //     }
+  //   }
+  // }
 
   void incomplete() async {
     index = 0;
@@ -492,25 +749,32 @@ class _CurrentTripState extends State<CurrentTrip> {
           visited: false);
       directions = dir!;
       finalPosition = LatLng(currentPostion.latitude, currentPostion.longitude);
+      isLoading = false;
     });
   }
 
   Widget _popUpMenuButton() => PopupMenuButton<int>(
+      color: Color.fromRGBO(75, 74, 103, 1),
       itemBuilder: (context) => [
             PopupMenuItem(
                 value: 1,
                 child: Text(
                   "Trip details",
                   style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.w700),
+                      color: Color.fromRGBO(221, 209, 199, 1),
+                      fontWeight: FontWeight.w700),
                 ),
                 onTap: () {
                   showDialog(
                       context: context,
                       builder: (_) => new AlertDialog(
+                            backgroundColor: Color.fromRGBO(221, 209, 199, 1),
                             shape: RoundedRectangleBorder(
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0))),
+                                    BorderRadius.all(Radius.circular(30.0)),
+                                side: BorderSide(
+                                    color: Color.fromRGBO(194, 207, 178, 1),
+                                    width: 5)),
                             content: Builder(
                               builder: (context) {
                                 // Get available height and width of the build area of this widget. Make a choice depending on the size.
@@ -518,34 +782,50 @@ class _CurrentTripState extends State<CurrentTrip> {
                                 //  var width = MediaQuery.of(context).size.width;
 
                                 return Container(
-                                  // height: SizeConfig.screenHeight! * 0.3,
+                                  height: SizeConfig.screenHeight! * 0.35,
                                   width: SizeConfig.screenWidth! * 0.7,
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Icon(Icons.details),
-                                          Text(
-                                            "Details",
-                                            style: TextStyle(
-                                                color: Colors.blue,
-                                                fontSize: 25),
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(height: 30),
-                                      Text(details(widget.trips),
-                                          style: TextStyle(fontSize: 23)),
-                                      SizedBox(height: 30),
-                                      TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text("Ok",
+                                  decoration: BoxDecoration(
+                                      color: Color.fromRGBO(221, 209, 199, 1)),
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.details_outlined,
+                                              color: Color.fromRGBO(
+                                                  75, 74, 103, 1),
+                                            ),
+                                            Text(
+                                              "Details",
                                               style: TextStyle(
-                                                  color: Colors.blue,
-                                                  fontSize: 23))),
-                                    ],
+                                                  color: Colors.black,
+                                                  fontSize: 25),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 30),
+                                        Text(details(widget.trips),
+                                            style: TextStyle(
+                                              fontSize: 23,
+                                              color: Colors.black,
+                                            )),
+                                        SizedBox(height: 30),
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text("Ok",
+                                                style: TextStyle(
+                                                    color: Color.fromRGBO(
+                                                        75, 74, 103, 1),
+                                                    fontSize: 23))),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },
@@ -560,8 +840,9 @@ class _CurrentTripState extends State<CurrentTrip> {
               value: 2,
               child: Text(
                 "Trip settings",
-                style:
-                    TextStyle(color: Colors.black, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                    color: Color.fromRGBO(221, 209, 199, 1),
+                    fontWeight: FontWeight.w700),
               ),
               // onTap: ()  {
               onTap: () async {
@@ -574,9 +855,14 @@ class _CurrentTripState extends State<CurrentTrip> {
                               user: widget.user,
                               journey: widget.journey,
                               trips: widget.trips)));
+                  setState(() {
+                    isLoading = true;
+                  });
                   if (tr.length == 1) {
                     if (tr[0].name == "delete") {
-                      Navigator.pop(context);
+                      List<TripDate> trr = [];
+                      Navigator.pop(context, trr);
+                      // log("trebuie sa ies");
                     }
                   }
 
@@ -590,7 +876,7 @@ class _CurrentTripState extends State<CurrentTrip> {
 
                   List<Trip> t = [];
                   tr.forEach((element) {
-                    log("sunt in schimb de trips " +
+                    dev.log("sunt in schimb de trips " +
                         element.visited.toString());
                     Trip tt = Trip(
                         id: element.id,
@@ -604,18 +890,18 @@ class _CurrentTripState extends State<CurrentTrip> {
                     t.add(tt);
                   });
                   setState(() {
-                    log("sunt in setstae");
+                    dev.log("sunt in setstae");
                     widget.trips = t;
                     widget.trips.forEach((element) {
-                      log(element.visited.toString());
+                      dev.log(element.visited.toString());
                     });
                     widget.journey.start_date = tr[0].start_date!;
                     widget.journey.end_date = tr[0].end_date!;
                   });
                   _getUserLocation();
                 } catch (_) {
-                  log(_.toString());
-                  log("exceptie navig curent");
+                  dev.log(_.toString());
+                  dev.log("exceptie navig curent");
                 }
                 //);
                 // },
@@ -630,52 +916,109 @@ class _CurrentTripState extends State<CurrentTrip> {
               value: 3,
               child: Text(
                 "Info",
-                style:
-                    TextStyle(color: Colors.black, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                    color: Color.fromRGBO(221, 209, 199, 1),
+                    fontWeight: FontWeight.w700),
               ),
               onTap: () {
                 showDialog(
                     context: context,
                     builder: (_) => new AlertDialog(
+                          backgroundColor: Color.fromRGBO(221, 209, 199, 1),
                           shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0))),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(30.0)),
+                            side: BorderSide(
+                                color: Color.fromRGBO(194, 207, 178, 1),
+                                width: 5),
+                          ),
                           content: Builder(
                             builder: (context) {
                               // Get available height and width of the build area of this widget. Make a choice depending on the size.
-                              var height = MediaQuery.of(context).size.height;
-                              var width = MediaQuery.of(context).size.width;
+                              // var height = MediaQuery.of(context).size.height;
+                              // var width = MediaQuery.of(context).size.width;
 
                               return Container(
-                                height: height - 600,
-                                width: width - 400,
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(Icons.info_rounded),
-                                        Text(
-                                          "Informations",
-                                          style: TextStyle(
-                                              color: Colors.blue, fontSize: 25),
-                                        )
-                                      ],
-                                    ),
-                                    SizedBox(height: 30),
-                                    Text(text.info,
-                                        style: TextStyle(fontSize: 23)),
-                                    SizedBox(height: 30),
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text("Ok",
+                                height: SizeConfig.screenHeight! * 0.35,
+                                width: SizeConfig.screenWidth! * 0.7,
+                                decoration: BoxDecoration(
+                                    color: Color.fromRGBO(221, 209, 199, 1)),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.info,
+                                            color:
+                                                Color.fromRGBO(75, 74, 103, 1),
+                                          ),
+                                          Text(
+                                            "Informations",
                                             style: TextStyle(
-                                                color: Colors.blue,
-                                                fontSize: 23))),
-                                  ],
+                                                color: Colors.black,
+                                                fontSize: 25),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 30),
+                                      Text(text.info,
+                                          style: TextStyle(
+                                            fontSize: 23,
+                                            color: Colors.black,
+                                          )),
+                                      SizedBox(height: 30),
+                                      TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text("Ok",
+                                              style: TextStyle(
+                                                  color: Color.fromRGBO(
+                                                      75, 74, 103, 1),
+                                                  fontSize: 23))),
+                                    ],
+                                  ),
                                 ),
                               );
+
+                              // return Container(
+                              //   height: height - 600,
+                              //   width: width - 400,
+                              //   child: Column(
+                              //     children: [
+                              //       Row(
+                              //         children: [
+                              //           Icon(Icons.info_rounded),
+                              //           Text(
+                              //             "Informations",
+                              //             style: TextStyle(
+                              //                 color: Color.fromRGBO(
+                              //                     75, 74, 103, 1),
+                              //                 fontSize: 25),
+                              //           )
+                              //         ],
+                              //       ),
+                              //       SizedBox(height: 30),
+                              //       Text(text.info,
+                              //           style: TextStyle(fontSize: 23)),
+                              //       SizedBox(height: 30),
+                              //       TextButton(
+                              //           onPressed: () {
+                              //             Navigator.pop(context);
+                              //           },
+                              //           child: Text("Ok",
+                              //               style: TextStyle(
+                              //                   color: Color.fromRGBO(
+                              //                       75, 74, 103, 1),
+                              //                   fontSize: 23))),
+                              //     ],
+                              //   ),
+                              // );
                             },
                           ),
                         ));
@@ -688,7 +1031,7 @@ class _CurrentTripState extends State<CurrentTrip> {
           ],
       icon: Align(
           alignment: Alignment.center,
-          child: Icon(Icons.menu, color: Colors.white)));
+          child: Icon(Icons.menu, color: Color.fromRGBO(221, 209, 199, 1))));
 
   showAlertDialogExceptions(BuildContext context, String tittl, String mes) {
     // set up the buttons
@@ -709,7 +1052,7 @@ class _CurrentTripState extends State<CurrentTrip> {
           Icon(Icons.info_outlined),
           Text(
             tittl,
-            style: TextStyle(color: Colors.blue),
+            style: TextStyle(color: Color.fromRGBO(75, 74, 103, 1)),
           )
         ],
       ),

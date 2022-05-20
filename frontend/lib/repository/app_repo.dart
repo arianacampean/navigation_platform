@@ -46,6 +46,18 @@ class AppRepository {
     }
   }
 
+  Future updateUser(User user) async {
+    log('get_one app_repo');
+    final client = _apiRequest;
+    try {
+      await client.updateUser(user.id!, user);
+    } catch (_) {
+      //log(_.toString());
+      log('exceptie add ');
+      rethrow;
+    }
+  }
+
   Future<Journey> addJouney(Journey jn, List<Trip> trips) async {
     log('add jouney');
     final client = _apiRequest;
@@ -235,20 +247,6 @@ class AppRepository {
     } catch (_) {
       log(_.toString());
       //log('exceptie update ');
-      rethrow;
-    }
-  }
-
-  Future<Settings> getSettingsForUser(int id) async {
-    log('get_one app_repo');
-    final client = _apiRequest;
-    try {
-      List<Settings> sett = await client.getSettingsForUser(id);
-      //log(sett.theme);
-      return sett[0];
-    } catch (_) {
-      //log(_.toString());
-      log('exceptie get ');
       rethrow;
     }
   }

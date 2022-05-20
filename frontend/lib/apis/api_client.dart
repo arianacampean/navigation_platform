@@ -9,6 +9,7 @@ import 'package:retrofit/http.dart';
 part 'api_client.g.dart';
 
 @RestApi(baseUrl: "http://192.168.8.112:8000/api/")
+//@RestApi(baseUrl: "http://172.20.10.6:8000/api/")
 abstract class ApiClient {
   factory ApiClient(Dio dio, {String? baseUrl}) = _ApiClient;
 
@@ -21,8 +22,8 @@ abstract class ApiClient {
   @GET("/user/{email}")
   Future<List<User>> getOneUser(@Path("email") String email);
 
-  @GET("/user/settings/{id_user}")
-  Future<List<Settings>> getSettingsForUser(@Path("id_user") int id_user);
+  @PUT("/user/pass/{pk}")
+  Future<void> updateUser(@Path("pk") int pk, @Body() User user);
 ///////////////////////////////////////////////////////////
   @GET("/trip")
   Future<List<Trip>> getAllTrips();

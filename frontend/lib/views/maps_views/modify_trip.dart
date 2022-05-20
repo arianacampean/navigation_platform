@@ -40,7 +40,7 @@ class _ModifyPageState extends State<ModifyPage> {
   List<Trip> addedTrips = [];
   List<TripDate> tripdate = [];
   List<Journey> journeys = [];
-
+  int _selectedIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -59,13 +59,13 @@ class _ModifyPageState extends State<ModifyPage> {
   Future getData() async {
     try {
       journeys = await appRepository.getJouneysByUserId(widget.user);
+      setState(() {
+        isLoading = false;
+      });
     } catch (_) {
       log(_.toString());
       log("eroare la luat journeys");
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
@@ -74,195 +74,435 @@ class _ModifyPageState extends State<ModifyPage> {
     return Scaffold(
       appBar: AppBar(),
       body: WillPopScope(
-          onWillPop: () async {
-            if (widget.trips.length != 0) {
-              widget.trips.forEach((element) {
-                TripDate tr = TripDate(
-                    id: element.id,
-                    id_journey: element.id_journey,
-                    latitude: element.latitude,
-                    longitude: element.longitude,
-                    city: element.city,
-                    country: element.country,
-                    name: element.name,
-                    visited: element.visited,
-                    start_date: widget.journey.start_date,
-                    end_date: widget.journey.end_date);
-                tripdate.add(tr);
-              });
-            }
-            Navigator.pop(context, tripdate);
-            return false;
-          },
-          child: Center(
-              child: isLoading
-                  ? CircularProgressIndicator()
-                  : Column(children: [
+        onWillPop: () async {
+          if (widget.trips.length != 0) {
+            widget.trips.forEach((element) {
+              TripDate tr = TripDate(
+                  id: element.id,
+                  id_journey: element.id_journey,
+                  latitude: element.latitude,
+                  longitude: element.longitude,
+                  city: element.city,
+                  country: element.country,
+                  name: element.name,
+                  visited: element.visited,
+                  start_date: widget.journey.start_date,
+                  end_date: widget.journey.end_date);
+              tripdate.add(tr);
+            });
+          }
+          Navigator.pop(context, tripdate);
+          return false;
+        },
+        child: Center(
+            child: isLoading
+                ? CircularProgressIndicator(
+                    backgroundColor: Color.fromRGBO(221, 209, 199, 1),
+                  )
+                : Container(
+                    // padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(75, 74, 103, 1),
+                    ),
+                    child: ListView(children: [
+                      // SizedBox(
+                      //   height: SizeConfig.screenHeight! * 0.15,
+                      // ),
                       Container(
-                        height: SizeConfig.screenHeight! * 0.1,
-                        child: Text(
-                          "Trip settings",
-                          style: TextStyle(fontSize: 20),
+                        height: SizeConfig.screenHeight! * 0.25,
+                        //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                        decoration: BoxDecoration(
+                          color: Color.fromRGBO(75, 74, 103, 1),
+                          image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: AssetImage('assets/images/map.png'),
+                              colorFilter: ColorFilter.mode(
+                                Colors.white.withOpacity(0.12),
+                                BlendMode.modulate,
+                              )),
                         ),
-                        alignment: Alignment.center,
+
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                "Trip settings ",
+                                style: TextStyle(
+                                    fontSize: 25,
+                                    color: Color.fromRGBO(221, 209, 199, 1)),
+                              ),
+                            ),
+                            Flexible(
+                              child: Divider(
+                                color: Color.fromRGBO(221, 209, 199, 1),
+                                height: 10,
+                                thickness: 1,
+                                indent: SizeConfig.screenWidth! * 0.4,
+                                endIndent: SizeConfig.screenWidth! * 0.4,
+                              ),
+                            ),
+                            Flexible(
+                              child: SizedBox(
+                                height: 20,
+                              ),
+                            ),
+
+                            // Container(
+                            //   padding: EdgeInsets.all(10),
+                            //   height: SizeConfig.screenHeight! * 0.05,
+                            //   child: Text(
+                            //     "Change if you visited smth long press for delete,save after or cancel",
+                            //     style: TextStyle(fontSize: 18),
+                            //   ),
+                            //   alignment: Alignment.center,
+                            // ),
+                            Flexible(
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "Start date: " +
+                                          widget.journey.start_date
+                                              .toString()
+                                              .split(" ")[0],
+                                      style: TextStyle(
+                                          fontSize: 25,
+                                          color:
+                                              Color.fromRGBO(221, 209, 199, 1)),
+                                    ),
+                                    Flexible(
+                                      child: TextButton(
+                                          onPressed: () {
+                                            _selectDate(context, "start");
+                                          },
+                                          child: Text("Change",
+                                              style: TextStyle(
+                                                  fontSize: 25,
+                                                  color: Color.fromRGBO(
+                                                      194, 207, 178, 1)))),
+                                    ),
+                                  ]),
+                            ),
+                            // DatePickerDialog(
+                            //     initialDate: widget.journey[0].start,
+                            //     firstDate: DateTime.now(),
+                            //     lastDate: DateTime(2025)),
+                            Flexible(
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                        "End date: " +
+                                            widget.journey.end_date
+                                                .toString()
+                                                .split(" ")[0],
+                                        style: TextStyle(
+                                            fontSize: 25,
+                                            color: Color.fromRGBO(
+                                                221, 209, 199, 1))),
+                                    Flexible(
+                                      child: TextButton(
+                                          onPressed: () {
+                                            _selectDate(context, "end");
+                                          },
+                                          child: Text("Change",
+                                              style: TextStyle(
+                                                  fontSize: 25,
+                                                  color: Color.fromRGBO(
+                                                      194, 207, 178, 1)))),
+                                    ),
+                                  ]),
+                            ),
+                            Flexible(
+                              child: SizedBox(
+                                height: 20,
+                              ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                "Long press on the destination if you want to delete it",
+                                style: TextStyle(
+                                    fontSize: 23,
+                                    color: Color.fromRGBO(221, 209, 199, 1)),
+                              ),
+                            ),
+                            // SizedBox(
+                            //   height: 15,
+                            // )
+                            //   ],
+                            // ),
+
+                            // Text(
+                            //   "Here are a couple of recommendations that are in the same country as your trip",
+                            //   style: TextStyle(
+                            //       fontSize: 20,
+                            //       color: Color.fromRGBO(221, 209, 199, 1)),
+                            // ),
+                          ],
+                        ),
+                        alignment: Alignment.centerLeft,
                       ),
+
                       Container(
-                        padding: EdgeInsets.all(10),
-                        height: SizeConfig.screenHeight! * 0.05,
-                        child: Text(
-                          "Change if you visited smth long press for delete,save after or cancel",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                        alignment: Alignment.center,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Start date: " +
-                                widget.journey.start_date
-                                    .toString()
-                                    .split(" ")[0],
-                            style: TextStyle(fontSize: 18),
+                        height: SizeConfig.screenHeight! * 0.60,
+                        decoration: BoxDecoration(
+                          //color: Color.fromRGBO(221, 209, 199, 1),
+                          color: Color.fromRGBO(221, 209, 199, 1),
+                          borderRadius: BorderRadius.all(Radius.circular(50)),
+                          border: Border.all(
+                            //color: Color.fromRGBO(126, 137, 135, 1),
+                            color: Color.fromRGBO(194, 207, 178, 1),
+                            width: 2,
                           ),
-                          TextButton(
-                              onPressed: () {
-                                _selectDate(context, "start");
-                              },
-                              child: Text("Change",
-                                  style: TextStyle(fontSize: 18))),
-                          // DatePickerDialog(
-                          //     initialDate: widget.journey[0].start,
-                          //     firstDate: DateTime.now(),
-                          //     lastDate: DateTime(2025)),
-                          Text(
-                              "End date: " +
-                                  widget.journey.end_date
-                                      .toString()
-                                      .split(" ")[0],
-                              style: TextStyle(fontSize: 18)),
-                          TextButton(
-                              onPressed: () {
-                                _selectDate(context, "end");
-                              },
-                              child: Text("Change",
-                                  style: TextStyle(fontSize: 18))),
-                          // SizedBox(
-                          //   height: 15,
-                          // )
-                        ],
-                      ),
-                      Expanded(
-                        child: ListView.separated(
+
+                          //  ),
+
+                          // borderRadius: BorderRadius.circular(10),
+                        ),
+                        // Center(
+                        //     child: isLoading
+                        //         ? CircularProgressIndicator()
+                        //         : Column(children: [
+                        //             Container(
+                        //               height: SizeConfig.screenHeight! * 0.1,
+                        //               child: Text(
+                        //                 "Trip settings",
+                        //                 style: TextStyle(fontSize: 20),
+                        //               ),
+                        //               alignment: Alignment.center,
+                        //             ),
+                        //             Container(
+                        //               padding: EdgeInsets.all(10),
+                        //               height: SizeConfig.screenHeight! * 0.05,
+                        //               child: Text(
+                        //                 "Change if you visited smth long press for delete,save after or cancel",
+                        //                 style: TextStyle(fontSize: 18),
+                        //               ),
+                        //               alignment: Alignment.center,
+                        //             ),
+                        //             Row(
+                        //               mainAxisAlignment: MainAxisAlignment.center,
+                        //               children: [
+                        //                 Text(
+                        //                   "Start date: " +
+                        //                       widget.journey.start_date
+                        //                           .toString()
+                        //                           .split(" ")[0],
+                        //                   style: TextStyle(fontSize: 18),
+                        //                 ),
+                        //                 TextButton(
+                        //                     onPressed: () {
+                        //                       _selectDate(context, "start");
+                        //                     },
+                        //                     child: Text("Change",
+                        //                         style: TextStyle(fontSize: 18))),
+                        //                 // DatePickerDialog(
+                        //                 //     initialDate: widget.journey[0].start,
+                        //                 //     firstDate: DateTime.now(),
+                        //                 //     lastDate: DateTime(2025)),
+                        //                 Text(
+                        //                     "End date: " +
+                        //                         widget.journey.end_date
+                        //                             .toString()
+                        //                             .split(" ")[0],
+                        //                     style: TextStyle(fontSize: 18)),
+                        //                 TextButton(
+                        //                     onPressed: () {
+                        //                       _selectDate(context, "end");
+                        //                     },
+                        //                     child: Text("Change",
+                        //                         style: TextStyle(fontSize: 18))),
+                        //                 // SizedBox(
+                        //                 //   height: 15,
+                        //                 // )
+                        //               ],
+                        //             ),
+                        // child: Expanded(
+                        child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: widget.trips.length,
                           itemBuilder: (context, index) {
                             return ListTile(
                               //leading: Image.asset('assets/images/imagess.jpg'),
                               title: Align(
+                                alignment: Alignment.center,
+                                child: Container(
                                   alignment: Alignment.center,
-                                  child: Container(
-                                      child: Column(
-                                    children: [
-                                      Align(
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            widget.trips[index].name,
-                                            style: TextStyle(fontSize: 20),
-                                          )),
-                                      Divider(
-                                        color: Color.fromRGBO(159, 224, 172, 1),
-                                        height: 25,
-                                        thickness: 2,
-                                        indent: SizeConfig.screenWidth! * 0.2,
-                                        endIndent:
-                                            SizeConfig.screenWidth! * 0.2,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          //SizedBox(width: SizeConfig.screenWidth! * 0.22),
-                                          Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                "Country: " +
-                                                    widget
-                                                        .trips[index].country +
-                                                    "    ",
-                                                style: TextStyle(fontSize: 20),
-                                              )),
-                                          // SizedBox(
-                                          //     width: SizeConfig.screenWidth! *
-                                          //         0.1),
-                                          Align(
-                                              alignment: Alignment.centerRight,
-                                              child: Text(
-                                                "City: " +
-                                                    widget.trips[index].city,
-                                                style: TextStyle(fontSize: 20),
-                                              ))
-                                        ],
-                                      ),
-                                      SingleChildScrollView(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text("Visited: ",
-                                                style: TextStyle(fontSize: 20)),
-                                            Align(
-                                                alignment: Alignment.center,
-                                                // padding: EdgeInsets.all(10),
-                                                child:
-                                                    DropdownButtonHideUnderline(
-                                                        child: DropdownButton<
-                                                            String>(
-                                                  value: dropdown(widget
-                                                      .trips[index].visited),
-                                                  icon: const Icon(
-                                                      Icons.arrow_circle_down),
-                                                  elevation: 16,
-                                                  style: const TextStyle(
-                                                      color: Colors.black,
-                                                      fontSize: 20),
-                                                  underline: Container(
-                                                    height: 2,
-                                                    color: Color.fromRGBO(
-                                                        159, 224, 172, 1),
-                                                  ),
-                                                  onChanged:
-                                                      (String? newValue) {
-                                                    setState(() {
-                                                      if (newValue == "Yes")
-                                                        widget.trips[index]
-                                                            .visited = true;
-                                                      else
-                                                        widget.trips[index]
-                                                            .visited = false;
-                                                    });
-                                                  },
-                                                  items: <String>[
-                                                    'Yes',
-                                                    'No',
-                                                  ].map<
-                                                          DropdownMenuItem<
-                                                              String>>(
-                                                      (String value) {
-                                                    return DropdownMenuItem<
-                                                        String>(
-                                                      value: value,
-                                                      child: Text(value),
-                                                    );
-                                                  }).toList(),
-                                                )))
-                                          ],
+                                  child: Column(children: [
+                                    Container(
+                                        // alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: Color.fromRGBO(75, 74, 103, 1),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(50)),
                                         ),
-                                      )
-                                      // SizedBox(height: 20),
-                                      // Divider(),
-                                    ],
-                                  ))),
+                                        width: SizeConfig.screenWidth! * 0.9,
+                                        height: SizeConfig.screenHeight! * 0.15,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Flexible(
+                                                child: Text(
+                                                    widget.trips[index].name,
+                                                    style: TextStyle(
+                                                      fontSize: 20,
+                                                      color: Color.fromRGBO(
+                                                          221, 209, 199, 1),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ))),
+                                            Divider(
+                                              color: Color.fromRGBO(
+                                                  141, 181, 128, 1),
+                                              height: 10,
+                                              thickness: 1,
+                                              indent: SizeConfig.screenWidth! *
+                                                  0.02,
+                                              endIndent:
+                                                  SizeConfig.screenWidth! *
+                                                      0.02,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                // Align(
+                                                //     alignment:
+                                                //         Alignment.centerLeft,
+                                                //   child:
+                                                Text(
+                                                  "Country: " +
+                                                      widget.trips[index]
+                                                          .country +
+                                                      "    ",
+                                                  style: TextStyle(
+                                                      fontSize: 20,
+                                                      color: Color.fromRGBO(
+                                                          221, 209, 199, 1)),
+                                                ),
+
+                                                // Align(
+                                                //     alignment:
+                                                //         Alignment.centerRight,
+                                                //     child:
+                                                Text(
+                                                  "City: " +
+                                                      widget.trips[index].city,
+                                                  style: TextStyle(
+                                                      fontSize: 20,
+                                                      color: Color.fromRGBO(
+                                                          221, 209, 199, 1)),
+                                                  // )
+                                                )
+                                              ],
+                                            ),
+                                            SingleChildScrollView(
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text("Visited: ",
+                                                      style: TextStyle(
+                                                          fontSize: 20,
+                                                          color: Color.fromRGBO(
+                                                              221,
+                                                              209,
+                                                              199,
+                                                              1))),
+                                                  Align(
+                                                      alignment:
+                                                          Alignment.center,
+                                                      // padding: EdgeInsets.all(10),
+                                                      child:
+                                                          DropdownButtonHideUnderline(
+                                                              child: new Theme(
+                                                                  data: Theme.of(
+                                                                          context)
+                                                                      .copyWith(
+                                                                    canvasColor:
+                                                                        Color.fromRGBO(
+                                                                            103,
+                                                                            112,
+                                                                            110,
+                                                                            1),
+                                                                  ),
+                                                                  child:
+                                                                      DropdownButton<
+                                                                          String>(
+                                                                    value: dropdown(widget
+                                                                        .trips[
+                                                                            index]
+                                                                        .visited),
+                                                                    icon: const Icon(
+                                                                        Icons
+                                                                            .arrow_circle_down,
+                                                                        color: Color.fromRGBO(
+                                                                            221,
+                                                                            209,
+                                                                            199,
+                                                                            1)),
+                                                                    elevation:
+                                                                        16,
+                                                                    style: const TextStyle(
+                                                                        color: Color.fromRGBO(
+                                                                          221,
+                                                                          209,
+                                                                          199,
+                                                                          1,
+                                                                        ),
+                                                                        fontSize: 20),
+                                                                    underline:
+                                                                        Container(
+                                                                      height: 2,
+                                                                      color: Color.fromRGBO(
+                                                                          221,
+                                                                          209,
+                                                                          199,
+                                                                          1),
+                                                                    ),
+                                                                    onChanged:
+                                                                        (String?
+                                                                            newValue) {
+                                                                      setState(
+                                                                          () {
+                                                                        if (newValue ==
+                                                                            "Yes")
+                                                                          widget
+                                                                              .trips[index]
+                                                                              .visited = true;
+                                                                        else
+                                                                          widget
+                                                                              .trips[index]
+                                                                              .visited = false;
+                                                                      });
+                                                                    },
+                                                                    items: <
+                                                                        String>[
+                                                                      'Yes',
+                                                                      'No',
+                                                                    ].map<
+                                                                        DropdownMenuItem<
+                                                                            String>>((String
+                                                                        value) {
+                                                                      return DropdownMenuItem<
+                                                                          String>(
+                                                                        value:
+                                                                            value,
+                                                                        child: Text(
+                                                                            value),
+                                                                      );
+                                                                    }).toList(),
+                                                                  ))))
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        )),
+                                  ]),
+                                ),
+                              ),
                               //  Text(title_for_list(widget.trips[index]),
                               //     style: TextStyle(fontSize: 20))),
                               onTap: () async {},
@@ -270,174 +510,117 @@ class _ModifyPageState extends State<ModifyPage> {
                                 showAlertDialog(
                                     context,
                                     "Delete destination",
-                                    "Are you sure you dont't want to visit this tourist attraction anymore?",
+                                    "Are you sure you don't want to visit this tourist attraction anymore?",
                                     widget.trips[index].id!);
                               },
                               dense: false,
 
                               contentPadding: EdgeInsets.only(
-                                  left: 10.0, right: 10.0, top: 35, bottom: 55),
+                                  left: 20.0, right: 20.0, top: 10, bottom: 10),
                               visualDensity:
                                   VisualDensity.adaptivePlatformDensity,
                             );
                           },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return Divider();
-                          },
-                        ),
-                      )
-                    ]))),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          ElevatedButton(
-            // elevation: 7,
-            onPressed: () {
-              if (widget.trips.length != 0) {
-                widget.trips.forEach((element) {
-                  TripDate tr = TripDate(
-                      id: element.id,
-                      id_journey: element.id_journey,
-                      latitude: element.latitude,
-                      longitude: element.longitude,
-                      city: element.city,
-                      country: element.country,
-                      name: element.name,
-                      visited: element.visited,
-                      start_date: widget.journey.start_date,
-                      end_date: widget.journey.end_date);
-                  tripdate.add(tr);
-                });
-              }
-              Navigator.pop(context, tripdate);
-            },
-            child: Container(
-              alignment: Alignment.center,
-              height: 40,
-              width: SizeConfig.screenWidth! * 0.15,
-              child: const Text(
-                "Cancel",
-                style: TextStyle(
-                    color: Color.fromRGBO(54, 62, 74, 10),
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-                primary: Color.fromRGBO(159, 224, 172, 55),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20))),
-          ),
-          ElevatedButton(
-            // elevation: 7,
-            onPressed: () async {
-              try {
-                addedTrips = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => AddTrip(
-                              user: widget.user,
-                              index: widget.journey.id!,
-                            )));
 
-                setState(() {
-                  addedTrips.forEach((element) {
-                    log(element.id!.toString());
-                  });
-                  log("nu e gol");
-                  widget.trips.addAll(addedTrips);
-                });
-              } catch (_) {
-                log("nu am trimis inapoi nimic de la add");
-              }
-            },
-            child: Container(
-              alignment: Alignment.center,
-              height: 40,
-              width: SizeConfig.screenWidth! * 0.15,
-              child: const Text(
-                "Add",
-                style: TextStyle(
-                    color: Color.fromRGBO(54, 62, 74, 10),
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-                primary: Color.fromRGBO(159, 224, 172, 55),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20))),
+                          // ),
+                          //  ),
+                        ),
+                        //),
+                      ),
+                    ]))),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Color.fromRGBO(141, 181, 128, 1),
+        // type: BottomNavigationBarType.shifting,
+        // selectedFontSize: 20,
+        // selectedIconTheme: IconThemeData(
+        //   color: Color.fromRGBO(75, 74, 103, 1),
+        // ),
+        currentIndex: _selectedIndex, //New
+        onTap: _onItemTapped,
+        unselectedItemColor: Color.fromRGBO(75, 74, 103, 1),
+        selectedItemColor: Color.fromRGBO(103, 112, 110, 1),
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add),
+            label: 'Add destination',
           ),
-          ElevatedButton(
-            // elevation: 7,
-            onPressed: () async {
-              showAlertDialog(context, "Delete Trip",
-                  "Are you sure you want to delete this trip?", 0);
-            },
-            child: Container(
-              alignment: Alignment.center,
-              height: 40,
-              width: SizeConfig.screenWidth! * 0.15,
-              child: const Text(
-                "Delete trip",
-                style: TextStyle(
-                    color: Color.fromRGBO(54, 62, 74, 10),
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-                primary: Color.fromRGBO(159, 224, 172, 55),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20))),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.delete),
+            label: 'Delete trip',
+            // backgroundColor: Color.fromRGBO(194, 207, 178, 1),
           ),
-          ElevatedButton(
-            // elevation: 7,
-            onPressed: () async {
-              try {
-                if (verifyDate(
-                        widget.journey.start_date, widget.journey.end_date) ==
-                    true) {
-                  if (widget.trips.length != 0) {
-                    await appRepository.updateJouneyandTrips(
-                        widget.journey, widget.trips);
-                    widget.trips.forEach((element) {
-                      TripDate tr = TripDate(
-                          id: element.id,
-                          id_journey: element.id_journey,
-                          latitude: element.latitude,
-                          longitude: element.longitude,
-                          city: element.city,
-                          country: element.country,
-                          name: element.name,
-                          visited: element.visited,
-                          start_date: widget.journey.start_date,
-                          end_date: widget.journey.end_date);
-                      tripdate.add(tr);
-                    });
-                  }
-                  Navigator.pop(context, tripdate);
-                }
-              } catch (_) {
-                log(_.toString());
-              }
-            },
-            child: Container(
-              alignment: Alignment.center,
-              height: 40,
-              width: SizeConfig.screenWidth! * 0.15,
-              child: const Text(
-                "Save changes",
-                style: TextStyle(
-                    color: Color.fromRGBO(54, 62, 74, 10),
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-                primary: Color.fromRGBO(159, 224, 172, 55),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20))),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.save),
+            label: 'Save changes',
+            //backgroundColor: Color.fromRGBO(194, 207, 178, 1),
           ),
         ],
+        iconSize: 60,
+        //  selectedItemColor: Color.fromRGBO(141, 181, 128, 1),
       ),
     );
+  }
+
+  void _onItemTapped(int index) async {
+    setState(() {
+      _selectedIndex = index;
+    });
+    if (_selectedIndex == 0) {
+      try {
+        addedTrips = await Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => AddTrip(
+                      user: widget.user,
+                      index: widget.journey.id!,
+                    )));
+
+        setState(() {
+          addedTrips.forEach((element) {
+            log(element.id!.toString());
+          });
+          log("nu e gol");
+          widget.trips.addAll(addedTrips);
+        });
+      } catch (_) {
+        log("eraore la add in modify");
+      }
+    }
+    if (_selectedIndex == 1) {
+      showAlertDialog(context, "Delete Trip",
+          "Are you sure you want to delete this trip?", 0);
+    }
+    if (_selectedIndex == 2) {
+      try {
+        if (verifyDate(widget.journey.start_date, widget.journey.end_date) ==
+            true) {
+          if (widget.trips.length != 0) {
+            await appRepository.updateJouneyandTrips(
+                widget.journey, widget.trips);
+            widget.trips.forEach((element) {
+              TripDate tr = TripDate(
+                  id: element.id,
+                  id_journey: element.id_journey,
+                  latitude: element.latitude,
+                  longitude: element.longitude,
+                  city: element.city,
+                  country: element.country,
+                  name: element.name,
+                  visited: element.visited,
+                  start_date: widget.journey.start_date,
+                  end_date: widget.journey.end_date);
+              tripdate.add(tr);
+            });
+          }
+          Navigator.pop(context, tripdate);
+        }
+      } catch (_) {
+        log(_.toString());
+      }
+    }
+    log(_selectedIndex.toString());
   }
 
   String title_for_list(Trip t) {
@@ -494,7 +677,9 @@ class _ModifyPageState extends State<ModifyPage> {
               ScaffoldMessenger.of(context).showSnackBar(snackBar);
               List<TripDate> tr = [];
               TripDate delete = TripDate(name: "delete");
+              tr.add(delete);
               Navigator.pop(context, tr);
+
               //Navigator.pop(context);
             } catch (_) {
               log(_.toString());
@@ -530,8 +715,13 @@ class _ModifyPageState extends State<ModifyPage> {
 
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text(title),
-      content: Text(content),
+      backgroundColor: Color.fromRGBO(221, 209, 199, 1),
+      title: Text(title,
+          style:
+              TextStyle(fontSize: 23, color: Color.fromRGBO(75, 74, 103, 1))),
+      content: Text(content,
+          style:
+              TextStyle(fontSize: 23, color: Color.fromRGBO(75, 74, 103, 1))),
       actions: [
         cancelButton,
         continueButton,
@@ -566,6 +756,21 @@ class _ModifyPageState extends State<ModifyPage> {
 
     final DateTime? selected = await showDatePicker(
         context: context,
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: Color.fromRGBO(103, 112, 110, 1),
+                onPrimary: Color.fromRGBO(221, 209, 199, 1),
+                //   onPrimary: Color.fromRGBO(103, 112, 110, 1),
+                // secondary: Color.fromRGBO(221, 209, 199, 1),
+                // onSurface: Colors.black,
+              ),
+              dialogBackgroundColor: Color.fromRGBO(221, 209, 199, 1),
+            ),
+            child: child!,
+          );
+        },
         initialDate: date,
         firstDate: firstdate,
         lastDate: lastDate,

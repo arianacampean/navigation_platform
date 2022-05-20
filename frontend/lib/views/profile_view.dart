@@ -13,13 +13,10 @@ import 'package:frontend/models/user.dart';
 import 'package:frontend/models/utility.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'custom_settings_views/theme_view.dart';
-
 class ProfilePage extends StatefulWidget {
-  Settings settings;
+  // Settings settings;
   User user;
-  ProfilePage({Key? key, required this.settings, required this.user})
-      : super(key: key);
+  ProfilePage({Key? key, required this.user}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -36,11 +33,6 @@ class _ProfilePageState extends State<ProfilePage> {
   String text = "Add a profile pic";
   bool verify = true;
 
-  late Color col_background;
-  late Color buttons_col;
-  late Color color_border;
-  late Color text_color;
-
   final first_name = TextEditingController();
   final last_name = TextEditingController();
   final email = TextEditingController();
@@ -53,10 +45,6 @@ class _ProfilePageState extends State<ProfilePage> {
     //var ceva=await DBProvider.db.
     setState(() => isLoading = true);
     dbHelper = DBProvider.db;
-    col_background = Colors.white;
-    buttons_col = Color.fromRGBO(159, 224, 172, 1);
-    color_border = Colors.white;
-    text_color = Colors.black;
 
     //getData();
     isImage();
@@ -68,149 +56,220 @@ class _ProfilePageState extends State<ProfilePage> {
     isImage();
   }
 
-  Future getData() async {
-    if (widget.settings.theme == "light") {
-      col_background = Colors.white;
-      buttons_col = Color.fromRGBO(159, 224, 172, 1);
-      color_border = Colors.white;
-      text_color = Colors.black;
-    } else {
-      col_background = Color.fromRGBO(38, 41, 40, 1);
-      buttons_col = Color.fromRGBO(38, 41, 40, 1);
-      color_border = Colors.black;
-      text_color = Color.fromRGBO(159, 224, 172, 1);
-    }
-
-    // setState(() => isLoading = false);
-  }
-
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return Scaffold(
-      appBar: AppBar(),
-      body: WillPopScope(
-        onWillPop: () async {
-          Navigator.pop(context);
-          return false;
-        },
-        child: Center(
-          child: isLoading
-              ? CircularProgressIndicator()
-              : Container(
-                  padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
-                  decoration: BoxDecoration(
-                    color: col_background,
-                  ),
-                  child: ListView(
-                    children: [
-                      SizedBox(height: SizeConfig.blockSizeVertical! * 2),
-                      verify
-                          ? CircleAvatar(
-                              radius: SizeConfig.screenHeight! * 0.15,
-                              backgroundColor: Colors.transparent,
-                              child: SizedBox(
-                                  width: SizeConfig.screenHeight! * 0.23,
-                                  height: SizeConfig.screenHeight! * 0.23,
-                                  child: ClipOval(
-                                    child: image,
-                                  )))
-                          : CircleAvatar(
-                              radius: SizeConfig.screenHeight! * 0.15,
-                              backgroundColor: Colors.transparent,
-                              child: SizedBox(
-                                  width: SizeConfig.screenHeight! * 0.23,
-                                  height: SizeConfig.screenHeight! * 0.23,
-                                  child: ClipOval(
-                                      child: Image.asset(
-                                          'assets/images/user.png')))),
-                      TextButton(
-                        onPressed: () async {
-                          _showPicker(context);
-                        },
-                        child: Text(
-                          text,
-                          style: TextStyle(fontSize: 20),
+        appBar: AppBar(),
+        body: WillPopScope(
+          onWillPop: () async {
+            Navigator.pop(context);
+            return false;
+          },
+          child: Center(
+            child: isLoading
+                ? CircularProgressIndicator(
+                    backgroundColor: Color.fromRGBO(221, 209, 199, 1),
+                  )
+                : Container(
+                    // padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(75, 74, 103, 1),
+                    ),
+                    child: ListView(children: [
+                      // SizedBox(
+                      //   height: SizeConfig.screenHeight! * 0.15,
+                      // ),
+                      Container(
+                        height: SizeConfig.screenHeight! * 0.35,
+                        //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
+
+                        decoration: BoxDecoration(
+                          color: Color.fromRGBO(75, 74, 103, 1),
+                          image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: AssetImage('assets/images/map.png'),
+                              colorFilter: ColorFilter.mode(
+                                Colors.white.withOpacity(0.12),
+                                BlendMode.modulate,
+                              )),
+                        ),
+
+                        child: Column(
+                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child:
+                                  //SizedBox(height: SizeConfig.blockSizeVertical! * 2),
+                                  verify
+                                      ? CircleAvatar(
+                                          radius:
+                                              SizeConfig.screenHeight! * 0.2,
+                                          backgroundColor: Colors.transparent,
+                                          child: SizedBox(
+                                              width: SizeConfig.screenHeight! *
+                                                  0.28,
+                                              height: SizeConfig.screenHeight! *
+                                                  0.28,
+                                              child: ClipOval(
+                                                child: image,
+                                              )))
+                                      : CircleAvatar(
+                                          radius:
+                                              SizeConfig.screenHeight! * 0.2,
+                                          backgroundColor: Colors.transparent,
+                                          child: SizedBox(
+                                              width: SizeConfig.screenHeight! *
+                                                  0.28,
+                                              height: SizeConfig.screenHeight! *
+                                                  0.28,
+                                              child: ClipOval(
+                                                  child: Image.asset(
+                                                      'assets/images/user.png')))),
+                            ),
+                          ],
+                          //    ),
                         ),
                       ),
-                      SizedBox(
-                        height: SizeConfig.screenHeight! * 0.04,
-                      ),
+
                       Container(
-                        width: SizeConfig.screenWidth! * 0.8,
-                        height: SizeConfig.screenHeight! * 0.07,
-                        alignment: Alignment.center,
-                        child: Text("First name:  " + widget.user.first_name,
-                            style: TextStyle(
-                                color: text_color,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w400)),
+                        height: SizeConfig.screenHeight! * 0.55,
                         decoration: BoxDecoration(
-                            color: buttons_col,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20))),
+                          //color: Color.fromRGBO(221, 209, 199, 1),
+                          color: Color.fromRGBO(221, 209, 199, 1),
+                          borderRadius: BorderRadius.all(Radius.circular(50)),
+                          border: Border.all(
+                            //color: Color.fromRGBO(126, 137, 135, 1),
+                            color: Color.fromRGBO(194, 207, 178, 1),
+                            width: 2,
+                          ),
+                        ),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              // SizedBox(
+                              //   height: 40,
+                              // ),
+                              TextButton(
+                                onPressed: () async {
+                                  _showPicker(context);
+                                },
+                                child: Text(
+                                  text,
+                                  style: TextStyle(
+                                      fontSize:
+                                          SizeConfig.screenHeight! * 0.022,
+                                      color: Color.fromRGBO(75, 74, 103, 1)),
+                                ),
+                              ),
+                              Container(
+                                alignment: Alignment.center,
+                                width: SizeConfig.screenWidth! * 0.9,
+                                height: SizeConfig.screenHeight! * 0.09,
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.black26,
+                                        offset: Offset(0, 4),
+                                        blurRadius: 5.0)
+                                  ],
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    stops: [0.4, 1.0],
+                                    colors: [
+                                      Color.fromRGBO(75, 74, 103, 1),
+                                      //   Color.fromRGBO(126, 137, 135, 1),
+                                      Color.fromRGBO(141, 181, 128, 1),
+                                    ],
+                                  ),
+                                  // color: Colors.deepPurple.shade300,
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                child: Text(
+                                  "First name: " + widget.user.first_name,
+                                  style: TextStyle(
+                                      color: Color.fromRGBO(221, 209, 199, 1),
+                                      fontSize:
+                                          SizeConfig.screenHeight! * 0.022),
+                                ),
+                              ),
+                              Container(
+                                alignment: Alignment.center,
+                                width: SizeConfig.screenWidth! * 0.9,
+                                height: SizeConfig.screenHeight! * 0.09,
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.black26,
+                                        offset: Offset(0, 4),
+                                        blurRadius: 5.0)
+                                  ],
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    stops: [0.4, 1.0],
+                                    colors: [
+                                      Color.fromRGBO(75, 74, 103, 1),
+                                      //   Color.fromRGBO(126, 137, 135, 1),
+                                      Color.fromRGBO(141, 181, 128, 1),
+                                    ],
+                                  ),
+                                  // color: Colors.deepPurple.shade300,
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                child: Text(
+                                  "Last name: " + widget.user.last_name,
+                                  style: TextStyle(
+                                      color: Color.fromRGBO(221, 209, 199, 1),
+                                      fontSize:
+                                          SizeConfig.screenHeight! * 0.022),
+                                ),
+                              ),
+                              Container(
+                                alignment: Alignment.center,
+                                width: SizeConfig.screenWidth! * 0.9,
+                                height: SizeConfig.screenHeight! * 0.09,
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.black26,
+                                        offset: Offset(0, 4),
+                                        blurRadius: 5.0)
+                                  ],
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    stops: [0.4, 1.0],
+                                    colors: [
+                                      Color.fromRGBO(75, 74, 103, 1),
+                                      //   Color.fromRGBO(126, 137, 135, 1),
+                                      Color.fromRGBO(141, 181, 128, 1),
+                                    ],
+                                  ),
+                                  // color: Colors.deepPurple.shade300,
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                child: Text(
+                                  "E-mail: " + widget.user.email,
+                                  style: TextStyle(
+                                      color: Color.fromRGBO(221, 209, 199, 1),
+                                      fontSize:
+                                          SizeConfig.screenHeight! * 0.022),
+                                ),
+                              ),
+
+                              //   ],
+                              //  ),
+                              // ),
+                              // ),
+                              //),
+                            ]),
                       ),
-                      Divider(
-                        color: Colors.black,
-                        height: 25,
-                        thickness: 2,
-                        indent: SizeConfig.screenWidth! * 0.2,
-                        endIndent: SizeConfig.screenWidth! * 0.2,
-                      ),
-                      SizedBox(
-                        height: SizeConfig.screenHeight! * 0.04,
-                      ),
-                      Container(
-                        width: SizeConfig.screenWidth! * 0.8,
-                        height: SizeConfig.screenHeight! * 0.07,
-                        alignment: Alignment.center,
-                        child: Text("Last name:  " + widget.user.last_name,
-                            style: TextStyle(
-                                color: text_color,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w400)),
-                        decoration: BoxDecoration(
-                            color: buttons_col,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20))),
-                      ),
-                      Divider(
-                        color: Colors.black,
-                        height: 25,
-                        thickness: 2,
-                        indent: SizeConfig.screenWidth! * 0.2,
-                        endIndent: SizeConfig.screenWidth! * 0.2,
-                      ),
-                      SizedBox(
-                        height: SizeConfig.screenHeight! * 0.04,
-                      ),
-                      Container(
-                        width: SizeConfig.screenWidth! * 0.8,
-                        height: SizeConfig.screenHeight! * 0.07,
-                        alignment: Alignment.center,
-                        child: Text("E-mail:  " + widget.user.email,
-                            style: TextStyle(
-                                color: text_color,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w400)),
-                        decoration: BoxDecoration(
-                            color: buttons_col,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20))),
-                      ),
-                      Divider(
-                        color: Colors.black,
-                        height: 25,
-                        thickness: 2,
-                        indent: SizeConfig.screenWidth! * 0.2,
-                        endIndent: SizeConfig.screenWidth! * 0.2,
-                      ),
-                    ],
+                    ]),
                   ),
-                ),
-        ),
-      ),
-    );
+          ),
+        ));
   }
 
   _imgFromGallery() async {
