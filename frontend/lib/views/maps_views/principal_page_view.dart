@@ -1,18 +1,15 @@
 import 'dart:developer';
 
-import 'package:carousel_slider/carousel_controller.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/exceptie.dart';
 import 'package:frontend/models/journey.dart';
-import 'package:frontend/models/settings.dart';
+
 import 'package:frontend/models/sizeConf.dart';
 import 'package:frontend/models/trip.dart';
 import 'package:frontend/models/tripDate.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/repository/app_repo.dart';
-import 'package:frontend/repository/repo.dart';
+
 import 'package:frontend/views/custom_settings_views/security_view.dart';
 import 'package:frontend/views/maps_views/add_trip_view.dart';
 import 'package:frontend/views/maps_views/history_view.dart';
@@ -33,14 +30,13 @@ class PrincipalPage extends StatefulWidget {
 }
 
 class _PrincipalPageState extends State<PrincipalPage> {
-  CarouselController buttonCarouselController = CarouselController();
   //late User user;
   late Exceptie ex;
-  late Repo repo;
+
   late AppRepository appRepository;
   String goodCredentials = "";
   bool isLoading = false;
-  late Settings settings;
+
   List<Journey> journeys = [];
   DateTime currentdate = DateTime.now();
   Journey currentJourney =
@@ -53,25 +49,19 @@ class _PrincipalPageState extends State<PrincipalPage> {
   int _selectedIndex = 0;
   int place = 0;
 
-  // late Color col_background;
-  // late Color buttons_col;
-  // late Color color_border;
-  // late Color text_color;
-
   @override
   void initState() {
     super.initState();
     getCoordonates();
-    repo = Repo.repo;
+
     ex = Exceptie.ex;
 
-    appRepository = AppRepository(repo);
+    appRepository = AppRepository();
 
     getData();
   }
 
   Future getData() async {
-    // log("iau datele de pe server pt prima pagina");
     setState(() => isLoading = true);
     try {
       journeys = await appRepository.getJouneysByUserId(widget.user);
@@ -92,8 +82,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
     } catch (_) {
       log(_.toString());
 
-      //  exceptie.showAlertDialogExceptions(
-      //context, "Eroare", "Nu se gasesc obiectele");
+      ex.showAlertDialogExceptions(context, "Eroare", "Nu se gasesc obiectele");
     }
     if (place == 1) {
       setState(() => isLoading = false);
@@ -110,6 +99,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
       currentPostion = LatLng(position.latitude, position.longitude);
       alt = position.altitude;
       if (trips.length != 0) {
+        log("sunt in isLoad la lenght");
         setState(() => isLoading = false);
       }
     });
@@ -119,6 +109,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
       setState(() {
         placemark = placemarks[1];
         place = 1;
+        isLoading = false;
       });
     } catch (_) {
       log("coord nu s-au putut gasi");
@@ -157,9 +148,6 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 ),
                 child: ListView(
                   children: [
-                    // SizedBox(
-                    //   height: SizeConfig.screenHeight! * 0.15,
-                    // ),
                     Container(
                       height: SizeConfig.screenHeight! * 0.35,
                       //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
@@ -193,19 +181,20 @@ class _PrincipalPageState extends State<PrincipalPage> {
                             SizedBox(
                               height: 10,
                             ),
-                            Text(
-                              "Adress: " +
-                                  placemark.street! +
-                                  ", " +
-                                  placemark.locality! +
-                                  ", " +
-                                  placemark.administrativeArea! +
-                                  ", " +
-                                  placemark.country!,
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  color: Color.fromRGBO(221, 209, 199, 1)),
-                            ),
+                            if (placemark.country != "")
+                              Text(
+                                "Adress: " +
+                                    placemark.street! +
+                                    ", " +
+                                    placemark.locality! +
+                                    ", " +
+                                    placemark.administrativeArea! +
+                                    ", " +
+                                    placemark.country!,
+                                style: TextStyle(
+                                    fontSize: 25,
+                                    color: Color.fromRGBO(221, 209, 199, 1)),
+                              ),
                             SizedBox(
                               height: 10,
                             ),
@@ -231,13 +220,6 @@ class _PrincipalPageState extends State<PrincipalPage> {
                                 ),
                               ],
                             ),
-                            // Divider(
-                            //   color: Color.fromRGBO(221, 209, 199, 1),
-                            //   height: 10,
-                            //   thickness: 1,
-                            //   indent: SizeConfig.screenWidth! * 0.09,
-                            //   endIndent: SizeConfig.screenWidth! * 0.09,
-                            // ),
                             SizedBox(
                               height: 10,
                             ),
@@ -247,13 +229,6 @@ class _PrincipalPageState extends State<PrincipalPage> {
                                   fontSize: 25,
                                   color: Color.fromRGBO(221, 209, 199, 1)),
                             ),
-                            // Divider(
-                            //   color: Color.fromRGBO(221, 209, 199, 1),
-                            //   height: 10,
-                            //   thickness: 1,
-                            //   indent: SizeConfig.screenWidth! * 0.35,
-                            //   endIndent: SizeConfig.screenWidth! * 0.35,
-                            // ),
                             SizedBox(
                               height: 20,
                             ),
@@ -291,7 +266,6 @@ class _PrincipalPageState extends State<PrincipalPage> {
                       ),
                       alignment: Alignment.centerLeft,
                     ),
-
                     Container(
                       height: SizeConfig.screenHeight! * 0.45,
                       decoration: BoxDecoration(
@@ -303,40 +277,10 @@ class _PrincipalPageState extends State<PrincipalPage> {
                           color: Color.fromRGBO(194, 207, 178, 1),
                           width: 2,
                         ),
-
-                        //  ),
-
-                        // borderRadius: BorderRadius.circular(10),
                       ),
-                      // decoration: BoxDecoration(
-                      //   boxShadow: [
-                      //     BoxShadow(
-                      //         color: Colors.black26,
-                      //         offset: Offset(0, 4),
-                      //         blurRadius: 5.0)
-                      //   ],
-                      //   gradient: LinearGradient(
-                      //     begin: Alignment.bottomRight,
-                      //     end: Alignment.topCenter,
-                      //     stops: [0.7, 2.0],
-                      //     colors: [
-                      //       Color.fromRGBO(221, 209, 199, 1),
-                      //       //  Colors.red,
-                      //       //   Color.fromRGBO(126, 137, 135, 1),
-                      //       Color.fromRGBO(194, 207, 178, 10),
-                      //     ],
-                      //   ),
-                      // color: Colors.deepPurple.shade300,
-                      // borderRadius: BorderRadius.circular(50),
-                      //  ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          // SizedBox(
-                          //   height: SizeConfig.screenHeight! * 0.05,
-                          // ),
-                          //Wrap(alignment: WrapAlignment.center, children: [
-                          // SizedBox(width: SizeConfig.screenWidth! * 0.02),
                           ElevatedButton(
                               onPressed: () async {
                                 try {
@@ -415,8 +359,6 @@ class _PrincipalPageState extends State<PrincipalPage> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius:
                                           BorderRadius.circular(50)))),
-                          // SizedBox(width: SizeConfig.screenWidth! * 0.02),
-                          // SizedBox(width: SizeConfig.screenWidth! * 0.01),
                           ElevatedButton(
                               onPressed: () async {
                                 try {
@@ -517,118 +459,12 @@ class _PrincipalPageState extends State<PrincipalPage> {
                                 )),
                                 backgroundColor: MaterialStateProperty.all(
                                     Colors.transparent),
-                                // elevation: MaterialStateProperty.all(3),
+
                                 shadowColor: MaterialStateProperty.all(
                                     Colors.transparent),
                               ),
                             ),
                           ),
-
-                          //  );
-                          /////////butoane
-                          ///
-                          ///
-
-                          // ElevatedButton(
-                          //     onPressed: () async {
-                          //       try {
-                          //         Journey jj = await Navigator.push(
-                          //             context,
-                          //             MaterialPageRoute(
-                          //                 builder: (context) => AddTrip(
-                          //                       user: widget.user,
-                          //                       index: 0,
-                          //                     )));
-                          //         if (jj.start_date.isBefore(currentdate) &&
-                          //             jj.end_date.isAfter(currentdate)) {
-                          //           setState(() {
-                          //             currentJourney = jj;
-                          //           });
-                          //           List<Trip>? t =
-                          //               await getTripsByJourney(currentJourney);
-                          //           log(t!.length.toString());
-                          //           setState(() {
-                          //             trips = t;
-                          //           });
-                          //         }
-                          //       } catch (_) {
-                          //         log("nu s a adaugat nimic");
-                          //       }
-                          //     },
-                          //     child: Wrap(
-                          //         // width: SizeConfig.screenWidth! * 0.1,
-                          //         // height: SizeConfig.screenHeight! * 0.1,
-                          //         children: [
-                          //           Container(
-                          //             padding: EdgeInsets.all(10),
-                          //             width: SizeConfig.screenWidth! * 0.55,
-                          //             height: SizeConfig.screenHeight! * 0.08,
-                          //             // child: Image.asset(
-                          //             //     'assets/images/add.png')
-                          //           ),
-                          //           Container(
-                          //               padding:
-                          //                   EdgeInsets.fromLTRB(3, 0, 3, 3),
-                          //               child: Text(
-                          //                 "Add a new trip",
-                          //                 style: TextStyle(
-                          //                     color: Colors.black,
-                          //                     fontSize:
-                          //                         SizeConfig.screenHeight! *
-                          //                             0.018),
-                          //               )),
-                          //         ]),
-                          //     style: ElevatedButton.styleFrom(
-                          //         primary: Color.fromRGBO(0, 115, 255, 150),
-                          //         shape: RoundedRectangleBorder(
-                          //             borderRadius:
-                          //                 BorderRadius.circular(40)))),
-                          // SizedBox(width: SizeConfig.screenWidth! * 0.02),
-                          // //  height: SizeConfig.screenHeight! * 0.08,
-                          // // ]
-                          // //),
-                          // Container(
-                          //   padding: EdgeInsets.all(20),
-                          //   width: SizeConfig.screenWidth! * 0.85,
-                          //   child: ElevatedButton(
-                          //       onPressed: () {
-                          //         Navigator.push(
-                          //             context,
-                          //             MaterialPageRoute(
-                          //                 builder: (context) => HistoryPage(
-                          //                       user: widget.user,
-                          //                     )));
-                          //       },
-                          //       child: Wrap(
-                          //           // width: SizeConfig.screenWidth! * 0.1,
-                          //           // height: SizeConfig.screenHeight! * 0.1,
-                          //           children: [
-                          //             Container(
-                          //                 padding: EdgeInsets.all(10),
-                          //                 width: SizeConfig.screenWidth! * 0.55,
-                          //                 height:
-                          //                     SizeConfig.screenHeight! * 0.08,
-                          //                 child: Image.asset(
-                          //                     'assets/images/history.png')),
-                          //             Container(
-                          //                 padding:
-                          //                     EdgeInsets.fromLTRB(3, 0, 3, 3),
-                          //                 child: Text(
-                          //                   "All trips",
-                          //                   style: TextStyle(
-                          //                       color: Colors.black,
-                          //                       fontSize:
-                          //                           SizeConfig.screenHeight! *
-                          //                               0.018),
-                          //                 )),
-                          //           ]),
-                          //       style: ElevatedButton.styleFrom(
-                          //           primary: Colors.grey,
-                          //           shape: RoundedRectangleBorder(
-                          //               borderRadius:
-                          //                   BorderRadius.circular(40)))),
-
-                          //  ),
                         ],
                       ),
                     ),
@@ -639,11 +475,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Color.fromRGBO(141, 181, 128, 1),
-        // type: BottomNavigationBarType.shifting,
-        // selectedFontSize: 20,
-        // selectedIconTheme: IconThemeData(
-        //   color: Color.fromRGBO(75, 74, 103, 1),
-        // ),
+
         currentIndex: _selectedIndex, //New
         onTap: _onItemTapped,
         unselectedItemColor: Color.fromRGBO(75, 74, 103, 1),
@@ -657,16 +489,13 @@ class _PrincipalPageState extends State<PrincipalPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.supervised_user_circle),
             label: 'Profile',
-            // backgroundColor: Color.fromRGBO(194, 207, 178, 1),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.security),
             label: 'Security',
-            //backgroundColor: Color.fromRGBO(194, 207, 178, 1),
           ),
         ],
         iconSize: 60,
-        //  selectedItemColor: Color.fromRGBO(141, 181, 128, 1),
       ),
     );
   }
@@ -706,13 +535,12 @@ class _PrincipalPageState extends State<PrincipalPage> {
     }
     if (_selectedIndex == 2) {
       try {
-        Settings setting = await Navigator.push(
+        User user = await Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => SecurityPage(user: widget.user)));
         setState(() {
-          settings = setting;
-          // getSettings();
+          widget.user = user;
         });
       } catch (_) {
         log(_.toString());

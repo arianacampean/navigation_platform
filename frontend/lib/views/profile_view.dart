@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/database/local_database.dart';
 import 'package:frontend/models/photo.dart';
-import 'package:frontend/models/settings.dart';
+
 import 'package:frontend/models/sizeConf.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/models/utility.dart';
@@ -309,21 +309,6 @@ class _ProfilePageState extends State<ProfilePage> {
           verify = false;
         });
     });
-  }
-
-  gridView() {
-    return Padding(
-      padding: EdgeInsets.all(5.0),
-      child: GridView.count(
-        crossAxisCount: 2,
-        childAspectRatio: 1.0,
-        mainAxisSpacing: 4.0,
-        crossAxisSpacing: 4.0,
-        children: images.map((photo) {
-          return Utility.imageFromBase64String(photo.photo_name);
-        }).toList(),
-      ),
-    );
   }
 
   void _showPicker(context) {

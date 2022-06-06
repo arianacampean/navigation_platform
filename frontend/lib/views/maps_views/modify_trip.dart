@@ -9,7 +9,6 @@ import 'package:frontend/models/trip.dart';
 import 'package:frontend/models/tripDate.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/repository/app_repo.dart';
-import 'package:frontend/repository/repo.dart';
 
 import 'add_trip_view.dart';
 
@@ -33,7 +32,7 @@ class _ModifyPageState extends State<ModifyPage> {
   String dropdownValue = 'Yes';
 //  List<Trip> trips = [];
   bool isLoading = true;
-  late Repo repo;
+
   late Exceptie ex;
   late AppRepository appRepository;
   List<Trip> deletedTrips = [];
@@ -44,10 +43,10 @@ class _ModifyPageState extends State<ModifyPage> {
   @override
   void initState() {
     super.initState();
-    repo = Repo.repo;
+
     ex = Exceptie.ex;
 
-    appRepository = AppRepository(repo);
+    appRepository = AppRepository();
     //  widget.journey.forEach((element) {
     //trips.add(element.trip);
     //  });
@@ -147,16 +146,6 @@ class _ModifyPageState extends State<ModifyPage> {
                                 height: 20,
                               ),
                             ),
-
-                            // Container(
-                            //   padding: EdgeInsets.all(10),
-                            //   height: SizeConfig.screenHeight! * 0.05,
-                            //   child: Text(
-                            //     "Change if you visited smth long press for delete,save after or cancel",
-                            //     style: TextStyle(fontSize: 18),
-                            //   ),
-                            //   alignment: Alignment.center,
-                            // ),
                             Flexible(
                               child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -184,10 +173,6 @@ class _ModifyPageState extends State<ModifyPage> {
                                     ),
                                   ]),
                             ),
-                            // DatePickerDialog(
-                            //     initialDate: widget.journey[0].start,
-                            //     firstDate: DateTime.now(),
-                            //     lastDate: DateTime(2025)),
                             Flexible(
                               child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -227,18 +212,6 @@ class _ModifyPageState extends State<ModifyPage> {
                                     color: Color.fromRGBO(221, 209, 199, 1)),
                               ),
                             ),
-                            // SizedBox(
-                            //   height: 15,
-                            // )
-                            //   ],
-                            // ),
-
-                            // Text(
-                            //   "Here are a couple of recommendations that are in the same country as your trip",
-                            //   style: TextStyle(
-                            //       fontSize: 20,
-                            //       color: Color.fromRGBO(221, 209, 199, 1)),
-                            // ),
                           ],
                         ),
                         alignment: Alignment.centerLeft,
@@ -260,65 +233,7 @@ class _ModifyPageState extends State<ModifyPage> {
 
                           // borderRadius: BorderRadius.circular(10),
                         ),
-                        // Center(
-                        //     child: isLoading
-                        //         ? CircularProgressIndicator()
-                        //         : Column(children: [
-                        //             Container(
-                        //               height: SizeConfig.screenHeight! * 0.1,
-                        //               child: Text(
-                        //                 "Trip settings",
-                        //                 style: TextStyle(fontSize: 20),
-                        //               ),
-                        //               alignment: Alignment.center,
-                        //             ),
-                        //             Container(
-                        //               padding: EdgeInsets.all(10),
-                        //               height: SizeConfig.screenHeight! * 0.05,
-                        //               child: Text(
-                        //                 "Change if you visited smth long press for delete,save after or cancel",
-                        //                 style: TextStyle(fontSize: 18),
-                        //               ),
-                        //               alignment: Alignment.center,
-                        //             ),
-                        //             Row(
-                        //               mainAxisAlignment: MainAxisAlignment.center,
-                        //               children: [
-                        //                 Text(
-                        //                   "Start date: " +
-                        //                       widget.journey.start_date
-                        //                           .toString()
-                        //                           .split(" ")[0],
-                        //                   style: TextStyle(fontSize: 18),
-                        //                 ),
-                        //                 TextButton(
-                        //                     onPressed: () {
-                        //                       _selectDate(context, "start");
-                        //                     },
-                        //                     child: Text("Change",
-                        //                         style: TextStyle(fontSize: 18))),
-                        //                 // DatePickerDialog(
-                        //                 //     initialDate: widget.journey[0].start,
-                        //                 //     firstDate: DateTime.now(),
-                        //                 //     lastDate: DateTime(2025)),
-                        //                 Text(
-                        //                     "End date: " +
-                        //                         widget.journey.end_date
-                        //                             .toString()
-                        //                             .split(" ")[0],
-                        //                     style: TextStyle(fontSize: 18)),
-                        //                 TextButton(
-                        //                     onPressed: () {
-                        //                       _selectDate(context, "end");
-                        //                     },
-                        //                     child: Text("Change",
-                        //                         style: TextStyle(fontSize: 18))),
-                        //                 // SizedBox(
-                        //                 //   height: 15,
-                        //                 // )
-                        //               ],
-                        //             ),
-                        // child: Expanded(
+
                         child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: widget.trips.length,
@@ -531,11 +446,7 @@ class _ModifyPageState extends State<ModifyPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Color.fromRGBO(141, 181, 128, 1),
-        // type: BottomNavigationBarType.shifting,
-        // selectedFontSize: 20,
-        // selectedIconTheme: IconThemeData(
-        //   color: Color.fromRGBO(75, 74, 103, 1),
-        // ),
+
         currentIndex: _selectedIndex, //New
         onTap: _onItemTapped,
         unselectedItemColor: Color.fromRGBO(75, 74, 103, 1),

@@ -39,6 +39,9 @@ dependencies:
   moor_flutter: ^4.0.0
   sqflite: ^2.0.0+4
   geocoding: ^2.0.4
+  kmeans: ^1.0.0
+  simple_cluster: ^0.3.0
+  dart_levenshtein: ^1.0.1
 
   #api google
   flutter_polyline_points: ^1.0.0

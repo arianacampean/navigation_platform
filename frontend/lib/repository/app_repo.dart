@@ -4,18 +4,15 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:frontend/apis/api_client.dart';
 import 'package:frontend/models/journey.dart';
-import 'package:frontend/models/settings.dart';
+
 import 'package:frontend/models/trip.dart';
 import 'package:frontend/models/user.dart';
-import 'package:frontend/repository/repo.dart';
 
 class AppRepository {
   late ApiClient _apiRequest;
   late Dio dio;
-  late Repo repo;
 
-  AppRepository(Repo repo) {
-    this.repo = repo;
+  AppRepository() {
     dio = Dio(BaseOptions(contentType: "application/json"));
     _apiRequest = ApiClient(dio);
   }
@@ -29,7 +26,7 @@ class AppRepository {
       return user;
     } catch (_) {
       log(_.toString());
-      //log('exceptie update ');
+      log("error getOneUser");
       rethrow;
     }
   }
@@ -40,8 +37,8 @@ class AppRepository {
     try {
       await client.addUser(user);
     } catch (_) {
-      //log(_.toString());
-      log('exceptie add ');
+      log(_.toString());
+      log("error addUser");
       rethrow;
     }
   }
@@ -52,8 +49,8 @@ class AppRepository {
     try {
       await client.updateUser(user.id!, user);
     } catch (_) {
-      //log(_.toString());
-      log('exceptie add ');
+      log(_.toString());
+      log("error updateUser");
       rethrow;
     }
   }
@@ -71,7 +68,7 @@ class AppRepository {
       return new_jn;
     } catch (_) {
       log(_.toString());
-      // log('exceptie add ');
+      log("error addJouney");
       rethrow;
     }
   }
@@ -88,7 +85,7 @@ class AppRepository {
       return tr;
     } catch (_) {
       log(_.toString());
-      // log('exceptie add ');
+      log("error addTrips");
       rethrow;
     }
   }
@@ -102,7 +99,7 @@ class AppRepository {
       return tr;
     } catch (_) {
       log(_.toString());
-      // log('exceptie add ');
+      log("error getallTrips()");
       rethrow;
     }
   }
@@ -113,10 +110,10 @@ class AppRepository {
     try {
       List<Trip> trips = await client.getTripsByJourney(j.id!);
 
-      log(trips[0].city);
       return trips;
     } catch (_) {
       log(_.toString());
+      log("error getTripsByJouneyId");
       //log('exceptie update ');
       rethrow;
     }
@@ -130,7 +127,7 @@ class AppRepository {
         await client.updateTrip(trips[i].id!, trips[i]);
       }
     } catch (_) {
-      log('exceptie update ');
+      log("error updateTrips");
       rethrow;
     }
   }
@@ -141,7 +138,7 @@ class AppRepository {
     try {
       await client.updateTrip(trips.id!, trips);
     } catch (_) {
-      log('exceptie update ');
+      log("error updateTrip");
       rethrow;
     }
   }
@@ -155,7 +152,7 @@ class AppRepository {
       }
       await client.updateJouney(j.id!, j);
     } catch (_) {
-      log('exceptie update ');
+      log("error updateTrips");
       rethrow;
     }
   }
@@ -169,7 +166,7 @@ class AppRepository {
       return trips;
     } catch (_) {
       log(_.toString());
-      //log('exceptie update ');
+      log("error getJouneysByUserId");
       rethrow;
     }
   }
@@ -182,7 +179,7 @@ class AppRepository {
       return trips;
     } catch (_) {
       log(_.toString());
-      //log('exceptie update ');
+      log('error  getJouneys()');
       rethrow;
     }
   }
@@ -193,7 +190,7 @@ class AppRepository {
     try {
       await client.deleteTrip(id);
     } catch (_) {
-      log('exceptie stergere');
+      log('error  deleteTri');
       rethrow;
     }
   }
@@ -206,7 +203,7 @@ class AppRepository {
         await client.deleteTrip(tr[i].id!);
       }
     } catch (_) {
-      log('exceptie stergere');
+      log('error  deleteTrips');
       rethrow;
     }
   }
@@ -217,7 +214,7 @@ class AppRepository {
     try {
       await client.deleteJouney(id);
     } catch (_) {
-      log('exceptie stergere');
+      log('error  deleteJourney');
       rethrow;
     }
   }
@@ -232,7 +229,7 @@ class AppRepository {
       await client.deleteJouney(j.id!);
     } catch (_) {
       log(_.toString());
-      log('exceptie stergere');
+      log('error  deleteJourneyandTrips');
       rethrow;
     }
   }
@@ -246,7 +243,7 @@ class AppRepository {
       return trips;
     } catch (_) {
       log(_.toString());
-      //log('exceptie update ');
+      log('error  getTripsByCountry');
       rethrow;
     }
   }

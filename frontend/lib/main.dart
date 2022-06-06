@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/journey.dart';
-import 'package:frontend/models/settings.dart';
+
 import 'package:frontend/models/trip.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/views/custom_settings_views/security_view.dart';
@@ -13,6 +13,7 @@ import 'package:frontend/views/maps_views/modify_trip.dart';
 import 'package:frontend/views/maps_views/principal_page_view.dart';
 
 import 'package:frontend/views/profile_view.dart';
+import 'package:frontend/views/recommendations_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,6 +45,12 @@ class MyApp extends StatelessWidget {
         //   journey: jj,
         // ));
         home: LoginForm());
+    // home: RecommendationsPage(
+    //     user: User(
+    //         id: 1,
+    //         last_name: "Ariana",
+    //         first_name: "Deborah",
+    //         email: "jdj")));
     // home: PrincipalPage(
     //     user: User(
     //         id: 1,

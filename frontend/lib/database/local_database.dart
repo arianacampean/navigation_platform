@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
-import 'package:frontend/models/details.dart';
+
 import 'package:frontend/models/photo.dart';
 
 import 'package:sqflite/sqflite.dart';

@@ -5,14 +5,13 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/models/settings.dart';
+
 import 'package:frontend/models/sizeConf.dart';
 import 'package:frontend/models/user.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../models/exceptie.dart';
 import '../../repository/app_repo.dart';
-import '../../repository/repo.dart';
 
 class SecurityPage extends StatefulWidget {
   // Settings settings;
@@ -25,7 +24,6 @@ class SecurityPage extends StatefulWidget {
 
 class _SecurityPageState extends State<SecurityPage> {
   String goodInfo = "";
-  late Repo repo;
   late Exceptie ex;
   late AppRepository appRepository;
 
@@ -37,8 +35,8 @@ class _SecurityPageState extends State<SecurityPage> {
   @override
   void initState() {
     super.initState();
-    repo = Repo.repo;
-    appRepository = AppRepository(repo);
+
+    appRepository = AppRepository();
   }
 
   @override

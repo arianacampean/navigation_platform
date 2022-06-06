@@ -14,7 +14,7 @@ import 'package:frontend/models/tripDate.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/repository/app_repo.dart';
 import 'package:frontend/repository/direction_repo.dart';
-import 'package:frontend/repository/repo.dart';
+
 import 'package:frontend/views/maps_views/modify_trip.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -38,7 +38,7 @@ class CurrentTrip extends StatefulWidget {
 
 class _CurrentTripState extends State<CurrentTrip> {
   bool isLoading = true;
-  late Repo repo;
+
   late AppRepository appRepository;
   late LatLng currentPostion;
   late GoogleMapController _controller;
@@ -73,30 +73,19 @@ class _CurrentTripState extends State<CurrentTrip> {
   void initState() {
     super.initState();
     isLoading = true;
-    _loadMapStyles();
-    repo = Repo.repo;
+
     ex = Exceptie.ex;
 
-    appRepository = AppRepository(repo);
+    appRepository = AppRepository();
 
     _getUserLocation();
 
     try {
-      // const duration = Duration(seconds: 30);
-      // timer = Timer(duration, () => _arrived());
+      _arrived();
       startTimer();
-
-      // _arrived();
-
-      //timer = Timer(duration, () => _arrived());
     } catch (_) {
       dev.log("functia mai merge");
     }
-  }
-
-  Future _loadMapStyles() async {
-    mapStyle = await rootBundle.loadString('assets/map_styles/retro.json');
-    // _lightMapStyle = await rootBundle.loadString('assets/map_styles/light.json');
   }
 
   void _arrived() {
@@ -123,15 +112,26 @@ class _CurrentTripState extends State<CurrentTrip> {
           loc.cancel();
         }
       });
-      double nr = getDistanceFromLatLonInKm(currentPostion, finalPosition);
-      if (nr <= 20) {
-        dev.log("da");
-        setState(() {
-          if (stopEntering == false) arrivedAtDestination = true;
-        });
-      } else
-        dev.log("nu");
+      // double nr = getDistanceFromLatLonInKm(currentPostion, finalPosition);
+      // if (nr <= 20) {
+      //   dev.log("da");
+      //   setState(() {
+      //     if (stopEntering == false) arrivedAtDestination = true;
+      //   });
+      // } else
+      //   dev.log("nu");
     }
+  }
+
+  void userAtDestination() {
+    double nr = getDistanceFromLatLonInKm(currentPostion, finalPosition);
+    if (nr <= 20) {
+      dev.log("da");
+      setState(() {
+        if (stopEntering == false) arrivedAtDestination = true;
+      });
+    } else
+      dev.log("nu");
   }
 
   void startTimer() {
@@ -144,7 +144,7 @@ class _CurrentTripState extends State<CurrentTrip> {
           dev.log("te-am oprit");
           //});
         } else {
-          _arrived();
+          userAtDestination();
         }
       },
     );
@@ -985,40 +985,6 @@ class _CurrentTripState extends State<CurrentTrip> {
                                   ),
                                 ),
                               );
-
-                              // return Container(
-                              //   height: height - 600,
-                              //   width: width - 400,
-                              //   child: Column(
-                              //     children: [
-                              //       Row(
-                              //         children: [
-                              //           Icon(Icons.info_rounded),
-                              //           Text(
-                              //             "Informations",
-                              //             style: TextStyle(
-                              //                 color: Color.fromRGBO(
-                              //                     75, 74, 103, 1),
-                              //                 fontSize: 25),
-                              //           )
-                              //         ],
-                              //       ),
-                              //       SizedBox(height: 30),
-                              //       Text(text.info,
-                              //           style: TextStyle(fontSize: 23)),
-                              //       SizedBox(height: 30),
-                              //       TextButton(
-                              //           onPressed: () {
-                              //             Navigator.pop(context);
-                              //           },
-                              //           child: Text("Ok",
-                              //               style: TextStyle(
-                              //                   color: Color.fromRGBO(
-                              //                       75, 74, 103, 1),
-                              //                   fontSize: 23))),
-                              //     ],
-                              //   ),
-                              // );
                             },
                           ),
                         ));
@@ -1135,20 +1101,5 @@ class _CurrentTripState extends State<CurrentTrip> {
     } else
       finall = finall + isNotVisited;
     return finall;
-  }
-
-  int transformInMinutes(String s) {
-    int sum = 0;
-    List<String> array = s.split(" ");
-    for (int i = 0; i < array.length; i = i + 2) {
-      if (array[i + 1] == 'hours') {
-        sum = sum + int.parse(array[i]) * 60;
-      } else if (array[i + 1] == 'day') {
-        sum = sum + int.parse(array[i]) * 60 * 24;
-      } else if (array[i + 1] == 'mins') {
-        sum = sum + int.parse(array[i]);
-      }
-    }
-    return sum;
   }
 }

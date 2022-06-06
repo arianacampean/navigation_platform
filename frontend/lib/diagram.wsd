@@ -1,0 +1,546 @@
+@startuml
+set namespaceSeparator ::
+
+abstract class "frontend::apis::api_client.dart::ApiClient" {
+  +Future<List<User>> getAllUsers()
+  +Future<User> addUser()
+  +Future<List<User>> getOneUser()
+  +Future<void> updateUser()
+  +Future<List<Trip>> getAllTrips()
+  +Future<Trip> addTrip()
+  +Future<List<Trip>> getOneTripById()
+  +Future<List<Trip>> getTripsByCountry()
+  +Future<void> deleteTrip()
+  +Future<void> updateTrip()
+  +Future<List<Trip>> getTripsByJourney()
+  +Future<List<Journey>> getAllJourneys()
+  +Future<Journey> addJourney()
+  +Future<List<Journey>> getJourneysById()
+  +Future<List<Journey>> getJourneysByUserId()
+  +Future<void> deleteJouney()
+  +Future<void> updateJouney()
+}
+
+class "frontend::apis::api_client.dart::_ApiClient" {        
+  -Dio _dio
+  +String? baseUrl
+  +Future<List<User>> getAllUsers()
+  +Future<User> addUser()
+  +Future<List<User>> getOneUser()
+  +Future<void> updateUser()
+  +Future<List<Trip>> getAllTrips()
+  +Future<Trip> addTrip()
+  +Future<List<Trip>> getOneTripById()
+  +Future<List<Trip>> getTripsByCountry()
+  +Future<void> deleteTrip()
+  +Future<void> updateTrip()
+  +Future<List<Trip>> getTripsByJourney()
+  +Future<List<Journey>> getAllJourneys()
+  +Future<Journey> addJourney()
+  +Future<List<Journey>> getJourneysById()
+  +Future<List<Journey>> getJourneysByUserId()
+  +Future<void> deleteJouney()
+  +Future<void> updateJouney()
+  -RequestOptions _setStreamType()
+}
+
+"frontend::apis::api_client.dart::_ApiClient" o-- "dio::src::dio.dart::Dio"
+"frontend::apis::api_client.dart::ApiClient" <|-- "frontend::apis::api_client.dart::_ApiClient"
+
+class "frontend::database::local_database.dart::DBProvider" {
+  {static} +String ID
+  {static} +String NAME
+  {static} +String TABLE
+  +int id
+  {static} +DBProvider db
+  {static} -Database? _database
+  +Future<Database> database
+  -Future<Database> _initDB()
+  -Future<dynamic> _createDB()
+  +Future<dynamic> close()
+  +Future<Photo> save()
+  +Future<Photo> changePhoto()
+  +Future<List<Photo>> getPhotos()
+}
+
+"frontend::database::local_database.dart::DBProvider" o-- "frontend::database::local_database.dart::DBProvider"
+"frontend::database::local_database.dart::DBProvider" o-- "sqflite_common::sqlite_api.dart::Database"
+
+class "frontend::main.dart::MyApp" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "frontend::main.dart::MyApp"
+
+class "frontend::models::directions.dart::Directions" {
+  +LatLngBounds bounds
+  +List<PointLatLng> polylinePoints
+  +String totalDistance
+  +String totalDuration
+}
+
+"frontend::models::directions.dart::Directions" o-- "google_maps_flutter_platform_interface::src::types::location.dart::LatLngBounds"
+
+class "frontend::models::exceptie.dart::Exceptie" {
+  {static} +Exceptie ex
+  +dynamic showAlertDialogExceptions()
+}
+
+"frontend::models::exceptie.dart::Exceptie" o-- "frontend::models::exceptie.dart::Exceptie"
+
+class "frontend::models::journey.dart::Journey" {
+  +int? id
+  +int? id_user
+  +DateTime start_date
+  +DateTime end_date
+  +Map<String, dynamic> toJson()
+}
+
+class "frontend::models::photo.dart::Photo" {
+  +int id
+  +String photo_name
+  +Map<String, dynamic> toMap()
+  {static} +Photo fromMap()
+}
+
+class "frontend::models::sizeConf.dart::SizeConfig" {
+  {static} -MediaQueryData? _mediaQueryData
+  {static} +double? screenWidth
+  {static} +double? screenHeight
+  {static} +double? blockSizeHorizontal
+  {static} +double? blockSizeVertical
+  +void init()
+}
+
+"frontend::models::sizeConf.dart::SizeConfig" o-- "flutter::src::widgets::media_query.dart::MediaQueryData"
+
+class "frontend::models::trip.dart::Trip" {
+  +int? id
+  +int? id_journey
+  +double latitude
+  +double longitude
+  +String city
+  +String country
+  +String name
+  +bool visited
+  +String toString()
+  +Map<String, dynamic> toJson()
+}
+
+class "frontend::models::tripDate.dart::TripDate" {
+  +int? id
+  +int? id_journey
+  +double? latitude
+  +double? longitude
+  +String? city
+  +String? country
+  +String? name
+  +bool? visited
+  +DateTime? start_date
+  +DateTime? end_date
+}
+
+class "frontend::models::user.dart::User" {
+  +int? id
+  +String first_name
+  +String last_name
+  +String email
+  +String? password
+  +Map<String, dynamic> toJson()
+}
+
+class "frontend::models::utility.dart::Utility" {
+  {static} +Image imageFromBase64String()
+  {static} +Uint8List dataFromBase64String()
+  {static} +String base64String()
+}
+
+class "frontend::repository::app_repo.dart::AppRepository" {
+  -ApiClient _apiRequest
+  +Dio dio
+  +Future<List<User>> getOneUser()
+  +Future<dynamic> addUser()
+  +Future<dynamic> updateUser()
+  +Future<Journey> addJouney()
+  +Future<List<Trip>> addTrips()
+  +Future<List<Trip>> getallTrips()
+  +Future<List<Trip>> getTripsByJouneyId()
+  +Future<dynamic> updateTrips()
+  +Future<dynamic> updateTrip()
+  +Future<dynamic> updateJouneyandTrips()
+  +Future<List<Journey>> getJouneysByUserId()
+  +Future<List<Journey>> getJouneys()
+  +Future<dynamic> deleteTrip()
+  +Future<dynamic> deleteTrips()
+  +Future<dynamic> deleteJourney()
+  +Future<dynamic> deleteJourneyandTrips()
+  +Future<List<Trip>> getTripsByCountry()
+}
+
+"frontend::repository::app_repo.dart::AppRepository" o-- "frontend::apis::api_client.dart::ApiClient"
+"frontend::repository::app_repo.dart::AppRepository" o-- "dio::src::dio.dart::Dio"
+
+class "frontend::repository::direction_repo.dart::DirectionsRepo" {
+  {static} +String url
+  -Dio _dio
+  +String googleApiKey
+  +Future<Directions?> getDirections()
+}
+
+"frontend::repository::direction_repo.dart::DirectionsRepo" o-- "dio::src::dio.dart::Dio"
+
+class "frontend::views::custom_settings_views::security_view.dart::SecurityPage" {
+  +User user
+  +_SecurityPageState createState()
+}
+
+"frontend::views::custom_settings_views::security_view.dart::SecurityPage" o-- "frontend::models::user.dart::User"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "frontend::views::custom_settings_views::security_view.dart::SecurityPage"
+
+class "frontend::views::custom_settings_views::security_view.dart::_SecurityPageState" {
+  +String goodInfo
+  +Exceptie ex
+  +AppRepository appRepository
+  -GlobalKey<FormState> _formKey
+  +TextEditingController old_pass
+  +TextEditingController new_pass
+  +TextEditingController new_pass2
+  +void initState()
+  +Widget build()
+}
+
+"frontend::views::custom_settings_views::security_view.dart::_SecurityPageState" o-- "frontend::models::exceptie.dart::Exceptie"
+"frontend::views::custom_settings_views::security_view.dart::_SecurityPageState" o-- "frontend::repository::app_repo.dart::AppRepository"
+"frontend::views::custom_settings_views::security_view.dart::_SecurityPageState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"frontend::views::custom_settings_views::security_view.dart::_SecurityPageState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "frontend::views::custom_settings_views::security_view.dart::_SecurityPageState"
+
+class "frontend::views::login_view.dart::LoginForm" {
+  +_LoginFormState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "frontend::views::login_view.dart::LoginForm"
+
+class "frontend::views::login_view.dart::_LoginFormState" {
+  +User user
+  +AppRepository appRepository
+  +String goodCredentials
+  +bool isLoading
+  +TextEditingController email
+  +TextEditingController pass
+  +void initState()
+  +Widget build()
+}
+
+"frontend::views::login_view.dart::_LoginFormState" o-- "frontend::models::user.dart::User"
+"frontend::views::login_view.dart::_LoginFormState" o-- "frontend::repository::app_repo.dart::AppRepository"
+"frontend::views::login_view.dart::_LoginFormState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"     
+"flutter::src::widgets::framework.dart::State" <|-- "frontend::views::login_view.dart::_LoginFormState"
+
+class "frontend::views::maps_views::add_trip_view.dart::AddTrip" {
+  +User user
+  +int index
+  +_AddTripState createState()
+}
+
+"frontend::views::maps_views::add_trip_view.dart::AddTrip" o-- "frontend::models::user.dart::User"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "frontend::views::maps_views::add_trip_view.dart::AddTrip"        
+
+class "frontend::views::maps_views::add_trip_view.dart::_AddTripState" {
+  +Exceptie ex
+  +AppRepository appRepository
+  +DateTime selectedDate_to_Start
+  +DateTime selectedDate_to_End
+  +String dateText
+  +String googleApikey
+  +GoogleMapController? mapController
+  +CameraPosition? cameraPosition
+  +LatLng startLocation
+  +String location
+  +PlacesDetailsResponse detail_for_info
+  +bool findPlace
+  +double forStart
+  +List<Journey> journeys
+  +bool isLoading
+  +Trip trip
+  +List<Trip> trips
+  +Journey journey
+  +bool noInfo
+  +void initState()
+  +Future<dynamic> getData()
+  +Widget build()
+  -dynamic _selectDate()
+  +String details_destinations_openingHours()
+  +String phone_number()
+  +String rating()
+  +String buildPhotoURL()
+}
+
+"frontend::views::maps_views::add_trip_view.dart::_AddTripState" o-- "frontend::models::exceptie.dart::Exceptie"
+"frontend::views::maps_views::add_trip_view.dart::_AddTripState" o-- "frontend::repository::app_repo.dart::AppRepository"
+"frontend::views::maps_views::add_trip_view.dart::_AddTripState" o-- "google_maps_flutter::google_maps_flutter.dart::GoogleMapController"
+"frontend::views::maps_views::add_trip_view.dart::_AddTripState" o-- "google_maps_flutter_platform_interface::src::types::camera.dart::CameraPosition"
+"frontend::views::maps_views::add_trip_view.dart::_AddTripState" o-- "google_maps_flutter_platform_interface::src::types::location.dart::LatLng"
+"frontend::views::maps_views::add_trip_view.dart::_AddTripState" o-- "google_maps_webservice::src::places.dart::PlacesDetailsResponse"
+"frontend::views::maps_views::add_trip_view.dart::_AddTripState" o-- "frontend::models::trip.dart::Trip"
+"frontend::views::maps_views::add_trip_view.dart::_AddTripState" o-- "frontend::models::journey.dart::Journey"
+"flutter::src::widgets::framework.dart::State" <|-- "frontend::views::maps_views::add_trip_view.dart::_AddTripState"
+
+class "frontend::views::maps_views::current_trip_view.dart::CurrentTrip" {
+  +User user
+  +Journey journey
+  +List<Trip> trips
+  +_CurrentTripState createState()
+}
+
+"frontend::views::maps_views::current_trip_view.dart::CurrentTrip" o-- "frontend::models::user.dart::User"
+"frontend::views::maps_views::current_trip_view.dart::CurrentTrip" o-- "frontend::models::journey.dart::Journey"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "frontend::views::maps_views::current_trip_view.dart::CurrentTrip"
+class "frontend::views::maps_views::current_trip_view.dart::_CurrentTripState" {
+  +bool isLoading
+  +AppRepository appRepository
+  +LatLng currentPostion
+  -GoogleMapController _controller
+  +Marker current_poz
+  +Marker destination
+  +bool firstMesage
+  +List<TripDate> tripdate
+  +bool arrivedAtDestination
+  +Map<int, int> order
+  -Timer _timer
+  +Trip trip
+  +LatLng coord
+  +Directions directions
+  +Exceptie ex
+  +int index
+  +bool readToStart
+  -Location _location
+  +LatLng finalPosition
+  +Timer timer
+  +bool stopEntering
+  +String mapStyle
+  +bool stop
+  +void initState()
+  -void _arrived()
+  +void userAtDestination()
+  +void startTimer()
+  +Widget build()
+  -void _getUserLocation()
+  +dynamic addRoute()
+  +Trip calculateNextDestination()
+  +dynamic calculateRoute()
+  +double getDistanceFromLatLonInKm()
+  +double deg2rad()
+  +void incomplete()
+  -Widget _popUpMenuButton()
+  +dynamic showAlertDialogExceptions()
+  -dynamic _editAlert()
+  +String details()
+}
+
+"frontend::views::maps_views::current_trip_view.dart::_CurrentTripState" o-- "frontend::repository::app_repo.dart::AppRepository"
+"frontend::views::maps_views::current_trip_view.dart::_CurrentTripState" o-- "google_maps_flutter_platform_interface::src::types::location.dart::LatLng"
+"frontend::views::maps_views::current_trip_view.dart::_CurrentTripState" o-- "google_maps_flutter::google_maps_flutter.dart::GoogleMapController"
+"frontend::views::maps_views::current_trip_view.dart::_CurrentTripState" o-- "google_maps_flutter_platform_interface::src::types::marker.dart::Marker"
+"frontend::views::maps_views::current_trip_view.dart::_CurrentTripState" o-- "dart::async::Timer"
+"frontend::views::maps_views::current_trip_view.dart::_CurrentTripState" o-- "frontend::models::trip.dart::Trip"
+"frontend::views::maps_views::current_trip_view.dart::_CurrentTripState" o-- "frontend::models::directions.dart::Directions"   
+"frontend::views::maps_views::current_trip_view.dart::_CurrentTripState" o-- "frontend::models::exceptie.dart::Exceptie"       
+"frontend::views::maps_views::current_trip_view.dart::_CurrentTripState" o-- "location::location.dart::Location"
+"flutter::src::widgets::framework.dart::State" <|-- "frontend::views::maps_views::current_trip_view.dart::_CurrentTripState"   
+
+class "frontend::views::maps_views::history_view.dart::HistoryPage" {
+  +User user
+  +_HistoryPageState createState()
+}
+
+"frontend::views::maps_views::history_view.dart::HistoryPage" o-- "frontend::models::user.dart::User"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "frontend::views::maps_views::history_view.dart::HistoryPage"     
+
+class "frontend::views::maps_views::history_view.dart::_HistoryPageState" {
+  +String dropdownValue
+  +bool isLoading
+  +Exceptie ex
+  +AppRepository appRepository
+  +List<Trip> trips
+  +List<Journey> journeys
+  +void initState()
+  +Future<dynamic> getData()
+  +List<Trip> getTripByJourney()
+  +Widget build()
+  +String visited()
+  +String getText()
+}
+
+"frontend::views::maps_views::history_view.dart::_HistoryPageState" o-- "frontend::models::exceptie.dart::Exceptie"
+"frontend::views::maps_views::history_view.dart::_HistoryPageState" o-- "frontend::repository::app_repo.dart::AppRepository"   
+"flutter::src::widgets::framework.dart::State" <|-- "frontend::views::maps_views::history_view.dart::_HistoryPageState"        
+
+class "frontend::views::maps_views::modify_trip.dart::ModifyPage" {
+  +User user
+  +Journey journey
+  +List<Trip> trips
+  +_ModifyPageState createState()
+}
+
+"frontend::views::maps_views::modify_trip.dart::ModifyPage" o-- "frontend::models::user.dart::User"
+"frontend::views::maps_views::modify_trip.dart::ModifyPage" o-- "frontend::models::journey.dart::Journey"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "frontend::views::maps_views::modify_trip.dart::ModifyPage"       
+
+class "frontend::views::maps_views::modify_trip.dart::_ModifyPageState" {
+  +String dropdownValue
+  +bool isLoading
+  +Exceptie ex
+  +AppRepository appRepository
+  +List<Trip> deletedTrips
+  +List<Trip> addedTrips
+  +List<TripDate> tripdate
+  +List<Journey> journeys
+  -int _selectedIndex
+  +void initState()
+  +Future<dynamic> getData()
+  +Widget build()
+  -void _onItemTapped()
+  +String title_for_list()
+  +String dropdown()
+  +dynamic showAlertDialog()
+  -dynamic _selectDate()
+  +bool verifyDate()
+}
+
+"frontend::views::maps_views::modify_trip.dart::_ModifyPageState" o-- "frontend::models::exceptie.dart::Exceptie"
+"frontend::views::maps_views::modify_trip.dart::_ModifyPageState" o-- "frontend::repository::app_repo.dart::AppRepository"     
+"flutter::src::widgets::framework.dart::State" <|-- "frontend::views::maps_views::modify_trip.dart::_ModifyPageState"
+
+class "frontend::views::maps_views::principal_page_view.dart::PrincipalPage" {
+  +User user
+  +_PrincipalPageState createState()
+}
+
+"frontend::views::maps_views::principal_page_view.dart::PrincipalPage" o-- "frontend::models::user.dart::User"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "frontend::views::maps_views::principal_page_view.dart::PrincipalPage"
+
+class "frontend::views::maps_views::principal_page_view.dart::_PrincipalPageState" {
+  +CarouselController buttonCarouselController
+  +Exceptie ex
+  +AppRepository appRepository
+  +String goodCredentials
+  +bool isLoading
+  +List<Journey> journeys
+  +DateTime currentdate
+  +Journey currentJourney
+  +List<Trip> trips
+  +LatLng currentPostion
+  +double alt
+  +Placemark placemark
+  -int _selectedIndex
+  +int place
+  +void initState()
+  +Future<dynamic> getData()
+  +dynamic getCoordonates()
+  +Future<List<Trip>?> getTripsByJourney()
+  +Widget build()
+  -void _onItemTapped()
+}
+
+"frontend::views::maps_views::principal_page_view.dart::_PrincipalPageState" o-- "carousel_slider::carousel_controller.dart::CarouselController"
+"frontend::views::maps_views::principal_page_view.dart::_PrincipalPageState" o-- "frontend::models::exceptie.dart::Exceptie"   
+"frontend::views::maps_views::principal_page_view.dart::_PrincipalPageState" o-- "frontend::repository::app_repo.dart::AppRepository"
+"frontend::views::maps_views::principal_page_view.dart::_PrincipalPageState" o-- "frontend::models::journey.dart::Journey"     
+"frontend::views::maps_views::principal_page_view.dart::_PrincipalPageState" o-- "google_maps_flutter_platform_interface::src::types::location.dart::LatLng"
+"frontend::views::maps_views::principal_page_view.dart::_PrincipalPageState" o-- "geocoding_platform_interface::src::models::placemark.dart::Placemark"
+"flutter::src::widgets::framework.dart::State" <|-- "frontend::views::maps_views::principal_page_view.dart::_PrincipalPageState"
+
+class "frontend::views::profile_view.dart::ProfilePage" {
+  +User user
+  +_ProfilePageState createState()
+}
+
+"frontend::views::profile_view.dart::ProfilePage" o-- "frontend::models::user.dart::User"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "frontend::views::profile_view.dart::ProfilePage"
+
+class "frontend::views::profile_view.dart::_ProfilePageState" {
+  +Future<File> imageFile
+  +Image image
+  +DBProvider dbHelper
+  +Photo photo
+  +bool isLoading
+  +List<Photo> images
+  +String text
+  +bool verify
+  +TextEditingController first_name
+  +TextEditingController last_name
+  +TextEditingController email
+  +void initState()
+  +dynamic refreshImage()
+  +Widget build()
+  -dynamic _imgFromGallery()
+  +dynamic isImage()
+  -void _showPicker()
+}
+
+"frontend::views::profile_view.dart::_ProfilePageState" o-- "flutter::src::widgets::image.dart::Image"
+"frontend::views::profile_view.dart::_ProfilePageState" o-- "frontend::database::local_database.dart::DBProvider"
+"frontend::views::profile_view.dart::_ProfilePageState" o-- "frontend::models::photo.dart::Photo"
+"frontend::views::profile_view.dart::_ProfilePageState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController" 
+"flutter::src::widgets::framework.dart::State" <|-- "frontend::views::profile_view.dart::_ProfilePageState"
+
+class "frontend::views::recommendations_view.dart::RecommendationsPage" {
+  +User user
+  +_RecommendationsPageState createState()
+}
+
+"frontend::views::recommendations_view.dart::RecommendationsPage" o-- "frontend::models::user.dart::User"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "frontend::views::recommendations_view.dart::RecommendationsPage" 
+
+class "frontend::views::recommendations_view.dart::_RecommendationsPageState" {
+  +Exceptie ex
+  +AppRepository appRepository
+  +String goodCredentials
+  +bool isLoading
+  +List<Journey> journeys
+  +DateTime currentdate
+  +Journey currentJourney
+  +List<Trip> trips
+  +List<Trip> recomm
+  +int index
+  +List<String> countries
+  +void initState()
+  +Future<dynamic> getData()
+  +Future<List<Trip>?> getTripsByCountry()
+  +Widget build()
+}
+
+"frontend::views::recommendations_view.dart::_RecommendationsPageState" o-- "frontend::models::exceptie.dart::Exceptie"        
+"frontend::views::recommendations_view.dart::_RecommendationsPageState" o-- "frontend::repository::app_repo.dart::AppRepository"
+"frontend::views::recommendations_view.dart::_RecommendationsPageState" o-- "frontend::models::journey.dart::Journey"
+"flutter::src::widgets::framework.dart::State" <|-- "frontend::views::recommendations_view.dart::_RecommendationsPageState"    
+
+class "frontend::views::register_view.dart::RegisterForm" {
+  +_RegisterFormState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "frontend::views::register_view.dart::RegisterForm"
+
+class "frontend::views::register_view.dart::_RegisterFormState" {
+  +User user
+  +AppRepository appRepository
+  +String goodPass
+  -GlobalKey<FormState> _formKey
+  +TextEditingController first_name
+  +TextEditingController last_name
+  +TextEditingController email
+  +TextEditingController pass
+  +TextEditingController pass2
+  +void initState()
+  +Widget build()
+}
+
+"frontend::views::register_view.dart::_RegisterFormState" o-- "frontend::models::user.dart::User"
+"frontend::views::register_view.dart::_RegisterFormState" o-- "frontend::repository::app_repo.dart::AppRepository"
+"frontend::views::register_view.dart::_RegisterFormState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"    
+"frontend::views::register_view.dart::_RegisterFormState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+
+
+
+@enduml

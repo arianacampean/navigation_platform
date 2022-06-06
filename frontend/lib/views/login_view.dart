@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/models/sizeConf.dart';
 import 'package:frontend/repository/app_repo.dart';
-import 'package:frontend/repository/repo.dart';
 
 import 'package:frontend/views/register_view.dart';
 
@@ -20,7 +19,7 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   late User user;
-  late Repo repo;
+
   late AppRepository appRepository;
   String goodCredentials = "";
   bool isLoading = false;
@@ -28,8 +27,8 @@ class _LoginFormState extends State<LoginForm> {
   @override
   void initState() {
     super.initState();
-    repo = Repo.repo;
-    appRepository = AppRepository(repo);
+
+    appRepository = AppRepository();
   }
 
   final email = TextEditingController();

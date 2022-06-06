@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/models/journey.dart';
-import 'package:frontend/models/settings.dart';
 import 'package:frontend/models/trip.dart';
 import 'package:frontend/models/user.dart';
 

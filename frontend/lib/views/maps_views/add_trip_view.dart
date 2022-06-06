@@ -10,7 +10,7 @@ import 'package:frontend/models/journey.dart';
 import 'package:frontend/models/sizeConf.dart';
 import 'package:frontend/models/trip.dart';
 import 'package:frontend/repository/app_repo.dart';
-import 'package:frontend/repository/repo.dart';
+
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/directions.dart';
@@ -27,8 +27,6 @@ class AddTrip extends StatefulWidget {
 }
 
 class _AddTripState extends State<AddTrip> {
-  //String date = "";
-  late Repo repo;
   late Exceptie ex;
   late AppRepository appRepository;
   DateTime selectedDate_to_Start = DateTime.now();
@@ -55,15 +53,14 @@ class _AddTripState extends State<AddTrip> {
   Journey journey =
       Journey(start_date: DateTime.now(), end_date: DateTime.now());
   bool noInfo = false;
-  //Journey journey =
-  //    Journey(start: DateTime.now(), end: DateTime.now(), visited: false);
+
   @override
   void initState() {
     super.initState();
-    repo = Repo.repo;
+    ;
     ex = Exceptie.ex;
 
-    appRepository = AppRepository(repo);
+    appRepository = AppRepository();
     getData();
   }
 
@@ -99,10 +96,6 @@ class _AddTripState extends State<AddTrip> {
                         zoomGesturesEnabled: true,
                         zoomControlsEnabled: false,
 
-                        //          zoomControlOptions: {
-                        //     style: google.maps.ZoomControlStyle.SMALL,
-                        //     position: google.maps.ControlPosition.LEFT_CENTER
-                        // }, //enable Zoom in, out on map
                         initialCameraPosition: CameraPosition(
                           //innital position in map
                           target: startLocation, //initial position
@@ -771,12 +764,6 @@ class _AddTripState extends State<AddTrip> {
       return s;
     }
     return s + rating.toString();
-  }
-
-  String cva() {
-    var rating = detail_for_info.result.photos[1].photoReference;
-    log(rating.toString());
-    return rating;
   }
 
   String buildPhotoURL(String photoReference) {

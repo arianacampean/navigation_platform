@@ -9,7 +9,6 @@ import 'package:frontend/models/trip.dart';
 import 'package:frontend/models/tripDate.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/repository/app_repo.dart';
-import 'package:frontend/repository/repo.dart';
 
 import 'add_trip_view.dart';
 
@@ -27,7 +26,7 @@ class _HistoryPageState extends State<HistoryPage> {
   String dropdownValue = 'Yes';
 //  List<Trip> trips = [];
   bool isLoading = true;
-  late Repo repo;
+
   late Exceptie ex;
   late AppRepository appRepository;
   List<Trip> trips = [];
@@ -36,10 +35,10 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   void initState() {
     super.initState();
-    repo = Repo.repo;
+
     ex = Exceptie.ex;
 
-    appRepository = AppRepository(repo);
+    appRepository = AppRepository();
     //  widget.journey.forEach((element) {
     //trips.add(element.trip);
     //  });
@@ -243,7 +242,6 @@ class _HistoryPageState extends State<HistoryPage> {
                                                   ),
                                                 ),
                                               ),
-
                                               Flexible(
                                                   child: Text(
                                                 "\n" +
@@ -269,57 +267,6 @@ class _HistoryPageState extends State<HistoryPage> {
                                               SizedBox(
                                                 width: 55,
                                               ),
-
-                                              // alignment:
-                                              //     Alignment.centerLeft,
-                                              // Container(
-                                              //     child: Column(
-                                              //   children: [
-                                              //     SizedBox(
-                                              //       height: 10,
-                                              //     ),
-                                              //     Text(
-                                              //       "Date: " +
-                                              //           journeys[index]
-                                              //               .start_date
-                                              //               .toString()
-                                              //               .split(" ")[0] +
-                                              //           " ~ " +
-                                              //           journeys[index]
-                                              //               .end_date
-                                              //               .toString()
-                                              //               .split(" ")[0],
-                                              //       style:
-                                              //           TextStyle(fontSize: 23),
-                                              //     ),
-                                              //     SizedBox(
-                                              //       height: 10,
-                                              //     ),
-                                              //     // Divider(
-                                              //     //   color: Color.fromRGBO(
-                                              //     //       159, 224, 172, 1),
-                                              //     //   height: 25,
-                                              //     //   thickness: 2,
-                                              //     //   indent: SizeConfig
-                                              //     //           .screenWidth! *
-                                              //     //       0.2,
-                                              //     //   endIndent: SizeConfig
-                                              //     //           .screenWidth! *
-                                              //     //       0.2,
-                                              //     // ),
-                                              //     Flexible(
-                                              //       child: Text(
-                                              //         getText(new_tr),
-                                              //         style: TextStyle(
-                                              //             fontSize: 23),
-                                              //         textAlign:
-                                              //             TextAlign.center,
-                                              //         overflow:
-                                              //             TextOverflow.ellipsis,
-                                              //       ),
-                                              //     )
-                                              //   ],
-                                              // )),
                                             ]))),
                                 onTap: () async {},
                                 dense: false,
@@ -337,82 +284,6 @@ class _HistoryPageState extends State<HistoryPage> {
                             //   return Divider();
                             // },
                           ),
-
-                          // child: Center(
-                          //     child: isLoading
-                          //         ? CircularProgressIndicator()
-                          //         : Column(children: [
-                          //             Container(
-                          //               height: SizeConfig.screenHeight! * 0.1,
-                          //               child: Text(
-                          //                 "All your trips sorted by date",
-                          //                 style: TextStyle(fontSize: 22),
-                          //               ),
-                          //               alignment: Alignment.center,
-                          //             ),
-                          //             Expanded(
-                          //               child: ListView.separated(
-                          //                 shrinkWrap: true,
-                          //                 itemCount: journeys.length,
-                          //                 itemBuilder: (context, index) {
-                          //                   List<Trip> new_tr =
-                          //                       getTripByJourney(journeys[index].id!);
-                          //                   return ListTile(
-                          //                     //leading: Image.asset('assets/images/imagess.jpg'),
-                          //                     title: Align(
-                          //                         alignment: Alignment.centerLeft,
-                          //                         child: Container(
-                          //                             child: Column(
-                          //                           children: [
-                          //                             Align(
-                          //                                 alignment: Alignment.center,
-                          //                                 child: Text(
-                          //                                   "Date: " +
-                          //                                       journeys[index]
-                          //                                           .start_date
-                          //                                           .toString()
-                          //                                           .split(" ")[0] +
-                          //                                       " ~ " +
-                          //                                       journeys[index]
-                          //                                           .end_date
-                          //                                           .toString()
-                          //                                           .split(" ")[0],
-                          //                                   style: TextStyle(fontSize: 20),
-                          //                                 )),
-                          //                             Divider(
-                          //                               color: Color.fromRGBO(159, 224, 172, 1),
-                          //                               height: 25,
-                          //                               thickness: 2,
-                          //                               indent: SizeConfig.screenWidth! * 0.2,
-                          //                               endIndent:
-                          //                                   SizeConfig.screenWidth! * 0.2,
-                          //                             ),
-                          //                             Align(
-                          //                                 alignment: Alignment.center,
-                          //                                 child: Text(
-                          //                                   getText(new_tr),
-                          //                                   style: TextStyle(fontSize: 20),
-                          //                                   textAlign: TextAlign.center,
-                          //                                 )),
-                          //                           ],
-                          //                         ))),
-                          //                     //  Text(title_for_list(widget.trips[index]),
-                          //                     //     style: TextStyle(fontSize: 20))),
-                          //                     onTap: () async {},
-
-                          //                     dense: false,
-
-                          //                     contentPadding: EdgeInsets.only(
-                          //                         left: 20.0, right: 20.0, top: 20, bottom: 20),
-                          //                     visualDensity:
-                          //                         VisualDensity.adaptivePlatformDensity,
-                          //                   );
-                          //                 },
-                          //                 separatorBuilder: (BuildContext context, int index) {
-                          //                   return Divider();
-                          //                 },
-                          //               ),
-                          //             )
                         )
                       ])))),
     );
