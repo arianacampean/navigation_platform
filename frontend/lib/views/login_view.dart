@@ -165,16 +165,12 @@ class _LoginFormState extends State<LoginForm> {
                           )),
                       Container(
                         alignment: Alignment.center,
-                        //  width: 100,
-                        //  height: SizeConfig.screenWidth! * 0.1,
-
                         child: SizedBox(
                           //  height: 100.0,
                           width: SizeConfig.screenHeight! * 0.10,
                           child: FittedBox(
                             child: FloatingActionButton.extended(
                               onPressed: () async {
-                                ///////////////////////////////////////////////////////////////////////////////////////////////////////////
                                 try {
                                   List<User> us = await appRepository
                                       .getOneUser(email.text);
@@ -208,7 +204,6 @@ class _LoginFormState extends State<LoginForm> {
                               label: const Text("Login",
                                   style: TextStyle(
                                       color: Color.fromRGBO(221, 209, 199, 1))),
-                              //  splashColor: Color.fromRGBO(221, 209, 199, 1),
                             ),
                           ),
                         ),
@@ -225,6 +220,8 @@ class _LoginFormState extends State<LoginForm> {
                               ),
                               TextButton(
                                 onPressed: () async {
+                                  email.clear();
+                                  pass.clear();
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(

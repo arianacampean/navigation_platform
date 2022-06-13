@@ -69,13 +69,7 @@ class _RegisterFormState extends State<RegisterForm> {
                             color: Color.fromRGBO(103, 112, 110, 1),
                             width: 1,
                           ),
-                          // image: DecorationImage(
-                          //     fit: BoxFit.cover,
-                          //     image: AssetImage('assets/images/map.png'),
-                          //     colorFilter: ColorFilter.mode(
-                          //       Colors.white.withOpacity(0.12),
-                          //       BlendMode.modulate,
-                          //     )),
+                       
                         ),
                         child: SingleChildScrollView(
                             child: Column(

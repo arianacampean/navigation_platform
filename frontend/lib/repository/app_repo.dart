@@ -17,6 +17,7 @@ class AppRepository {
     _apiRequest = ApiClient(dio);
   }
 
+  //luarea unui singur user in functie de email
   Future<List<User>> getOneUser(String email) async {
     log('get_one app_repo');
     final client = _apiRequest;
@@ -31,8 +32,9 @@ class AppRepository {
     }
   }
 
+  //adaugare de utilizator
   Future addUser(User user) async {
-    log('get_one app_repo');
+    log('addUser app_repo');
     final client = _apiRequest;
     try {
       await client.addUser(user);
@@ -43,8 +45,9 @@ class AppRepository {
     }
   }
 
+  //actualizarea utilizatorului
   Future updateUser(User user) async {
-    log('get_one app_repo');
+    log('updateUser app_repo');
     final client = _apiRequest;
     try {
       await client.updateUser(user.id!, user);
@@ -55,8 +58,9 @@ class AppRepository {
     }
   }
 
+  //adaugare de jouney-uri
   Future<Journey> addJouney(Journey jn, List<Trip> trips) async {
-    log('add jouney');
+    log('add jouney app repo');
     final client = _apiRequest;
     try {
       Journey new_jn = await client.addJourney(jn);
@@ -73,8 +77,9 @@ class AppRepository {
     }
   }
 
+  //adaugare de trip-uri
   Future<List<Trip>> addTrips(List<Trip> trips) async {
-    log('add jouney');
+    log('add trips app repo');
     final client = _apiRequest;
     List<Trip> tr = [];
     try {
@@ -90,9 +95,10 @@ class AppRepository {
     }
   }
 
+  //luarea tuturor trip-urilor
   Future<List<Trip>> getallTrips() async {
+    log('getAllTrips app repo');
     final client = _apiRequest;
-
     try {
       List<Trip> tr = await client.getAllTrips();
 
@@ -104,8 +110,9 @@ class AppRepository {
     }
   }
 
+  //uare de trip uri in functie de id ul jouney ului
   Future<List<Trip>> getTripsByJouneyId(Journey j) async {
-    log('get_trips by j id');
+    log('getTripsByJouneyId app repo');
     final client = _apiRequest;
     try {
       List<Trip> trips = await client.getTripsByJourney(j.id!);
@@ -114,13 +121,13 @@ class AppRepository {
     } catch (_) {
       log(_.toString());
       log("error getTripsByJouneyId");
-      //log('exceptie update ');
       rethrow;
     }
   }
 
+  //actiualizare lista trip uri
   Future updateTrips(List<Trip> trips) async {
-    log('update app_repo');
+    log('updateTrips app_repo');
     final client = _apiRequest;
     try {
       for (int i = 0; i < trips.length; i++) {
@@ -132,8 +139,9 @@ class AppRepository {
     }
   }
 
+  //actualizare de trip
   Future updateTrip(Trip trips) async {
-    log('update app_repo');
+    log('updateTrips app_repo');
     final client = _apiRequest;
     try {
       await client.updateTrip(trips.id!, trips);
@@ -143,8 +151,9 @@ class AppRepository {
     }
   }
 
+  //actualizare lista tripuri si journey uri
   Future updateJouneyandTrips(Journey j, List<Trip> trips) async {
-    log('update app_repo');
+    log('updateJouneyandTrips app_repo');
     final client = _apiRequest;
     try {
       for (int i = 0; i < trips.length; i++) {
@@ -157,9 +166,9 @@ class AppRepository {
     }
   }
 
-  //pentru istoric
+  //luarea journy-lor in functe de id userului
   Future<List<Journey>> getJouneysByUserId(User u) async {
-    log('get_one app_repo');
+    log('getJouneysByUserId app_repo');
     final client = _apiRequest;
     try {
       List<Journey> trips = await client.getJourneysByUserId(u.id!);
@@ -171,8 +180,9 @@ class AppRepository {
     }
   }
 
+  // luarea tuturor journey lor
   Future<List<Journey>> getJouneys() async {
-    log('get_one app_repo');
+    log('getJouneys( app_repo');
     final client = _apiRequest;
     try {
       List<Journey> trips = await client.getAllJourneys();
@@ -184,8 +194,9 @@ class AppRepository {
     }
   }
 
+  // stergerea unui singur trip
   Future deleteTrip(int id) async {
-    log('stergere app_repo');
+    log('deleteTrip app_repo');
     final client = _apiRequest;
     try {
       await client.deleteTrip(id);
@@ -195,8 +206,9 @@ class AppRepository {
     }
   }
 
+  // stergerea unei liste de trip uri
   Future deleteTrips(List<Trip> tr) async {
-    log('stergere app_repo');
+    log('deleteTrips app_repo');
     final client = _apiRequest;
     try {
       for (int i = 0; i < tr.length; i++) {
@@ -208,8 +220,9 @@ class AppRepository {
     }
   }
 
+  // stergerea unui journey
   Future deleteJourney(int id) async {
-    log('stergere app_repo');
+    log('deleteJourney app_repo');
     final client = _apiRequest;
     try {
       await client.deleteJouney(id);
@@ -219,8 +232,9 @@ class AppRepository {
     }
   }
 
+  // stergerea calatoriei
   Future deleteJourneyandTrips(List<Trip> trips, Journey j) async {
-    log('stergere app_repo');
+    log('deleteJourneyandTrips app_repo');
     final client = _apiRequest;
     try {
       for (int i = 0; i < trips.length; i++) {
@@ -230,20 +244,6 @@ class AppRepository {
     } catch (_) {
       log(_.toString());
       log('error  deleteJourneyandTrips');
-      rethrow;
-    }
-  }
-
-  //pentru recomandari
-  Future<List<Trip>> getTripsByCountry(String city) async {
-    log('get_one app_repo');
-    final client = _apiRequest;
-    try {
-      List<Trip> trips = await client.getTripsByCountry(city);
-      return trips;
-    } catch (_) {
-      log(_.toString());
-      log('error  getTripsByCountry');
       rethrow;
     }
   }

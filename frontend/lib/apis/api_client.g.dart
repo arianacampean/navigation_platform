@@ -8,7 +8,7 @@ part of 'api_client.dart';
 
 class _ApiClient implements ApiClient {
   _ApiClient(this._dio, {this.baseUrl}) {
-    baseUrl ??= 'http://192.168.8.112:8000/api/';
+    baseUrl ??= 'http://ariana.pythonanywhere.com/api/';
   }
 
   final Dio _dio;

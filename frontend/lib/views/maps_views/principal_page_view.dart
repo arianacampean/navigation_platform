@@ -61,6 +61,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
     getData();
   }
 
+  //ia jouney-ul si trip urile curente daca exista
   Future getData() async {
     setState(() => isLoading = true);
     try {
@@ -89,6 +90,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
     }
   }
 
+  //ia coordonatele curente pentru a gasi adresa utilizatorului
   getCoordonates() async {
     LocationPermission permission;
     permission = await Geolocator.requestPermission();
@@ -99,7 +101,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
       currentPostion = LatLng(position.latitude, position.longitude);
       alt = position.altitude;
       if (trips.length != 0) {
-        log("sunt in isLoad la lenght");
+   
         setState(() => isLoading = false);
       }
     });
@@ -117,6 +119,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
     }
   }
 
+  //returneza toate trip urile din calatoria curenta
   Future<List<Trip>?> getTripsByJourney(Journey j) async {
     try {
       List<Trip> trip = await appRepository.getTripsByJouneyId(currentJourney);
@@ -500,6 +503,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
     );
   }
 
+  //functie pentru meniul din pagina
   void _onItemTapped(int index) async {
     setState(() {
       _selectedIndex = index;
@@ -524,10 +528,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 builder: (context) => ProfilePage(
                       user: widget.user,
                     )));
-        setState(() {
-          // settings = setting;
-          // getSettings();
-        });
+      
       } catch (_) {
         log(_.toString());
         log("er la nav profile");

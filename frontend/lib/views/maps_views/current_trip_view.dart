@@ -64,7 +64,7 @@ class _CurrentTripState extends State<CurrentTrip> {
   bool readToStart = false;
   Location _location = Location();
   late LatLng finalPosition;
-  late Timer timer;
+
   bool stopEntering = false;
   late String mapStyle;
   bool stop = false;
@@ -73,13 +73,9 @@ class _CurrentTripState extends State<CurrentTrip> {
   void initState() {
     super.initState();
     isLoading = true;
-
     ex = Exceptie.ex;
-
     appRepository = AppRepository();
-
     _getUserLocation();
-
     try {
       _arrived();
       startTimer();
@@ -88,11 +84,12 @@ class _CurrentTripState extends State<CurrentTrip> {
     }
   }
 
+  //functie care actualizeza locatia si datele in functie de pozitia utilizatorului
   void _arrived() {
     if (firstMesage == false && arrivedAtDestination == false) {
       dev.log("calculez");
       var loc;
-      // _location.onLocationChanged.
+
       loc = _location.onLocationChanged.listen((l) async {
         try {
           setState(() {
@@ -103,7 +100,7 @@ class _CurrentTripState extends State<CurrentTrip> {
           });
           var dir = await DirectionsRepo().getDirections(
               origin: currentPostion, destination: finalPosition);
-          // log("prima" + dir!.totalDuration);
+
           setState(() {
             directions = dir!;
           });
@@ -112,35 +109,37 @@ class _CurrentTripState extends State<CurrentTrip> {
           loc.cancel();
         }
       });
-      // double nr = getDistanceFromLatLonInKm(currentPostion, finalPosition);
-      // if (nr <= 20) {
-      //   dev.log("da");
-      //   setState(() {
-      //     if (stopEntering == false) arrivedAtDestination = true;
-      //   });
-      // } else
-      //   dev.log("nu");
     }
   }
 
+  //functie care verfica daca utilizatorul a ajuns sau nu la destinatie
   void userAtDestination() {
+    dev.log(stop.toString());
+    dev.log("inca merg");
     double nr = getDistanceFromLatLonInKm(currentPostion, finalPosition);
-    if (nr <= 20) {
+    if (nr <= 1) {
       dev.log("da");
-      setState(() {
-        if (stopEntering == false) arrivedAtDestination = true;
-      });
+      try {
+        setState(() {
+          if (stopEntering == false) arrivedAtDestination = true;
+        });
+      } catch (_) {
+        dev.log("userAtDestination still works");
+      }
     } else
       dev.log("nu");
   }
 
+  //apeleza userAtDestination in 30 in 30 de secunde pentru verificare
   void startTimer() {
     const oneSec = const Duration(seconds: 30);
     _timer = new Timer.periodic(
       oneSec,
       (Timer timer) {
+        dev.log(stop.toString());
         if (stop == true) {
-          // timer.cancel();
+          _timer.cancel();
+          ;
           dev.log("te-am oprit");
           //});
         } else {
@@ -152,7 +151,6 @@ class _CurrentTripState extends State<CurrentTrip> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     SizeConfig().init(context);
     return Scaffold(
         appBar: AppBar(
@@ -200,11 +198,12 @@ class _CurrentTripState extends State<CurrentTrip> {
               });
             }
             setState(() {
-              _timer.cancel();
+              dev.log("stop true");
               stop = true;
+              _timer.cancel();
             });
             Navigator.pop(context, tripdate);
-            //  Navigator.pop(context);
+
             return false;
           },
           child: Center(
@@ -213,29 +212,22 @@ class _CurrentTripState extends State<CurrentTrip> {
                       backgroundColor: Color.fromRGBO(221, 209, 199, 1),
                     )
                   : Container(
-                      // padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
-
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
                           GoogleMap(
-                            // onMapCreated: _onMapCreated,
                             initialCameraPosition: CameraPosition(
                               target: currentPostion,
                               zoom: 15,
                             ),
-                            //myLocationButtonEnabled: true,
                             zoomControlsEnabled: false,
                             myLocationEnabled: true,
                             mapType: MapType.normal,
-
                             markers: {destination},
                             onMapCreated: (controller) {
-                              //method called when map is created
                               setState(() {
                                 _controller = controller;
                               });
-                              //   _controller.setMapStyle(mapStyle);
                             },
                             polylines: {
                               Polyline(
@@ -255,7 +247,6 @@ class _CurrentTripState extends State<CurrentTrip> {
                                   alignment: Alignment.center,
                                   height: SizeConfig.screenHeight! * 0.05,
                                   width: MediaQuery.of(context).size.width,
-                                  //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
                                   decoration: BoxDecoration(
                                       color: Color.fromRGBO(75, 74, 103, 1),
                                       image: DecorationImage(
@@ -281,7 +272,6 @@ class _CurrentTripState extends State<CurrentTrip> {
                                   alignment: Alignment.center,
                                   height: SizeConfig.screenHeight! * 0.05,
                                   width: MediaQuery.of(context).size.width,
-                                  //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
                                   decoration: BoxDecoration(
                                       color: Color.fromRGBO(141, 181, 128, 1),
                                       image: DecorationImage(
@@ -300,25 +290,18 @@ class _CurrentTripState extends State<CurrentTrip> {
                             ),
                           ),
                           if (firstMesage == true)
-                            // ex.showAlertDialogExceptions(context, "mdf", "df"),
                             Positioned(
                               top: SizeConfig.screenHeight! * 0.35,
                               child: Column(
                                 children: [
                                   Container(
                                     alignment: Alignment.center,
-                                    // color: Colors.white,
+
                                     padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
                                     width: SizeConfig.screenWidth! * 0.7,
                                     // height: SizeConfig.screenHeight! * 0.15,
                                     decoration: BoxDecoration(
                                         color: Color.fromRGBO(75, 74, 103, 1),
-                                        // border: Border.all(
-                                        //   //color: Color.fromRGBO(126, 137, 135, 1),
-                                        //   color:
-                                        //       Color.fromRGBO(141, 181, 128, 1),
-                                        //   width: 2,
-                                        // ),
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(20))),
                                     child: Column(
@@ -360,17 +343,14 @@ class _CurrentTripState extends State<CurrentTrip> {
                               ),
                             ),
                           if (arrivedAtDestination == true)
-                            // ex.showAlertDialogExceptions(context, "mdf", "df"),
                             Positioned(
                               top: SizeConfig.screenHeight! * 0.35,
                               child: Column(
                                 children: [
                                   Container(
                                     alignment: Alignment.center,
-                                    // color: Colors.white,
                                     padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
                                     width: SizeConfig.screenWidth! * 0.7,
-                                    // height: SizeConfig.screenHeight! * 0.15,
                                     decoration: BoxDecoration(
                                         color: Color.fromRGBO(75, 74, 103, 1),
                                         borderRadius: BorderRadius.all(
@@ -447,17 +427,14 @@ class _CurrentTripState extends State<CurrentTrip> {
                               ),
                             ),
                           if (index == 0)
-                            // ex.showAlertDialogExceptions(context, "mdf", "df"),
                             Positioned(
                               top: SizeConfig.screenHeight! * 0.35,
                               child: Column(
                                 children: [
                                   Container(
                                     alignment: Alignment.center,
-                                    // color: Colors.white,
                                     padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
                                     width: SizeConfig.screenWidth! * 0.7,
-                                    // height: SizeConfig.screenHeight! * 0.15,
                                     decoration: BoxDecoration(
                                         color: Color.fromRGBO(75, 74, 103, 1),
                                         borderRadius: BorderRadius.all(
@@ -523,7 +500,6 @@ class _CurrentTripState extends State<CurrentTrip> {
                                   ),
                                 )),
                           Positioned(
-                              // alignment: Alignment(-0.9, -0.81),
                               top: 80,
                               left: 20,
                               child: Container(
@@ -547,6 +523,7 @@ class _CurrentTripState extends State<CurrentTrip> {
         ));
   }
 
+  //permisiunile pentru a lua locatia curenta a utilizatorului
   void _getUserLocation() async {
     dev.log("sunt in getUserLoc");
     readToStart = false;
@@ -559,17 +536,20 @@ class _CurrentTripState extends State<CurrentTrip> {
 
     setState(() {
       currentPostion = LatLng(position.latitude, position.longitude);
-      //  currentPostion = LatLng(46.7422, 23.4840);
       firstMesage = true;
     });
     addRoute();
   }
 
+  //calculare destinatie apropiata+ traseul catre aceasta
   addRoute() {
     Trip t = calculateNextDestination();
     calculateRoute(t);
   }
 
+  //caluleaza cea mai apropiata destinatie dintre cele alese
+  //retruneza trip ul gasit in caz ca exista
+  //contrar returneaza unul gol
   Trip calculateNextDestination() {
     Trip nextTrip = Trip(
         latitude: 0,
@@ -578,11 +558,11 @@ class _CurrentTripState extends State<CurrentTrip> {
         country: " ",
         name: " ",
         visited: false);
-    var dir;
+
     widget.trips.forEach((element) {
       dev.log("sunt inforeach");
       LatLng position = LatLng(element.latitude, element.longitude);
-      //daca a terminat de vizitata tot pune condtitie
+
       double min = 32000000000000;
       if (element.visited == false) {
         setState(() {
@@ -604,6 +584,7 @@ class _CurrentTripState extends State<CurrentTrip> {
     return nextTrip;
   }
 
+  //calculeaza ruta pentru destinatia aleasa
   calculateRoute(Trip nexttrip) async {
     if (nexttrip.longitude != 0) {
       var dir;
@@ -622,8 +603,6 @@ class _CurrentTripState extends State<CurrentTrip> {
         dev.log("am initializat tripul");
         finalPosition = LatLng(nexttrip.latitude, nexttrip.longitude);
         destination = Marker(
-            // icon: BitmapDescriptor.defaultMarkerWithHue(
-            //     BitmapDescriptor.hueGreen),
             markerId: const MarkerId('destination'),
             infoWindow: const InfoWindow(title: 'Destination'),
             position: LatLng(nexttrip.latitude, nexttrip.longitude));
@@ -635,9 +614,10 @@ class _CurrentTripState extends State<CurrentTrip> {
     }
   }
 
+  //formula lui Haversine pentru calculare distanta intre doua puncte in kilometrii
   double getDistanceFromLatLonInKm(LatLng current, LatLng destin) {
-    var R = 6371; // Radius of the earth in km
-    var dLat = deg2rad(destin.latitude - current.latitude); // deg2rad below
+    var R = 6371;
+    var dLat = deg2rad(destin.latitude - current.latitude);
     var dLon = deg2rad(destin.longitude - current.longitude);
     var a = sin(dLat / 2) * sin(dLat / 2) +
         cos(deg2rad(current.latitude)) *
@@ -645,7 +625,7 @@ class _CurrentTripState extends State<CurrentTrip> {
             sin(dLon / 2) *
             sin(dLon / 2);
     var c = 2 * atan2(sqrt(a), sqrt(1 - a));
-    var d = R * c; // Distance in km
+    var d = R * c;
     return d;
   }
 
@@ -653,83 +633,7 @@ class _CurrentTripState extends State<CurrentTrip> {
     return deg * (pi / 180);
   }
 
-  // Future<void> addRoute() async {
-  //   if (widget.trips.length == 0) {
-  //     incomplete();
-  //   } else {
-  //     dev.log("sunt in add route");
-
-  //     int minTime = 3200000000;
-  //     late Trip t;
-  //     var dir;
-  //     int contor = 0;
-  //     int findVisited = 0;
-  //     try {
-  //       widget.trips.forEach((element) async {
-  //         dev.log("sunt inforeach");
-  //         LatLng position = LatLng(element.latitude, element.longitude);
-  //         //daca a terminat de vizitata tot pune condtitie
-
-  //         if (element.visited == false) {
-  //           setState(() {
-  //             index++;
-  //           });
-  //           dev.log(element.visited.toString() + " " + element.name);
-  //           try {
-  //             dir = await DirectionsRepo()
-  //                 .getDirections(origin: currentPostion, destination: position);
-  //           } catch (_) {
-  //             ex.showAlertDialogExceptions(
-  //                 context, "Error", "The routes could not be loaded");
-  //             Navigator.pop(context);
-  //           }
-  //           //  log(dir!.totalDuration + " " + element.name);
-  //           int time = transformInMinutes(dir!.totalDuration);
-  //           // final add = <int, int>{1: time, 2: element.id!};
-
-  //           if (time < minTime) {
-  //             dev.log("sunt in if");
-  //             dev.log(transformInMinutes(dir!.totalDuration).toString());
-  //             t = element;
-  //             minTime = transformInMinutes(dir!.totalDuration);
-  //             contor++;
-
-  //             setState(() {
-  //               directions = dir!;
-  //               dev.log("am initializat tripul");
-  //               finalPosition = LatLng(element.latitude, element.longitude);
-  //               destination = Marker(
-  //                   // icon: BitmapDescriptor.defaultMarkerWithHue(
-  //                   //     BitmapDescriptor.hueGreen),
-  //                   markerId: const MarkerId('destination'),
-  //                   infoWindow: const InfoWindow(title: 'Destination'),
-  //                   position: LatLng(t.latitude, t.longitude));
-  //               trip = t;
-  //               isLoading = false;
-  //               arrivedAtDestination = false;
-  //               stopEntering = false;
-  //             });
-  //           } else
-  //             sleep(Duration(milliseconds: 100));
-  //           findVisited++;
-  //         } else
-  //           findVisited++;
-  //       });
-  //       if (findVisited == widget.trips.length)
-  //         setState(() {
-  //           // isLoading = false;
-  //         });
-  //     } catch (_) {
-  //       ex.showAlertDialogExceptions(
-  //           context, "Error", "The routes could not be loaded");
-  //       Navigator.pop(context);
-  //     }
-  //     if (index == 0) {
-  //       incomplete();
-  //     }
-  //   }
-  // }
-
+  //functie care verifica daca tripul a fost terminat sau nu mai sunt destinatii de vizitat
   void incomplete() async {
     index = 0;
 
@@ -753,6 +657,7 @@ class _CurrentTripState extends State<CurrentTrip> {
     });
   }
 
+  //meniul din stanga cu setari ,detalii si infomatii
   Widget _popUpMenuButton() => PopupMenuButton<int>(
       color: Color.fromRGBO(75, 74, 103, 1),
       itemBuilder: (context) => [
@@ -777,10 +682,6 @@ class _CurrentTripState extends State<CurrentTrip> {
                                     width: 5)),
                             content: Builder(
                               builder: (context) {
-                                // Get available height and width of the build area of this widget. Make a choice depending on the size.
-                                //  var height = MediaQuery.of(context).size.height;
-                                //  var width = MediaQuery.of(context).size.width;
-
                                 return Container(
                                   height: SizeConfig.screenHeight! * 0.35,
                                   width: SizeConfig.screenWidth! * 0.7,
@@ -832,8 +733,6 @@ class _CurrentTripState extends State<CurrentTrip> {
                             ),
                           ));
 
-                  // showAlertDialogExceptions(
-                  //     context, ' Informations', 'Eroare la get drinks');
                   _editAlert();
                 }),
             PopupMenuItem(
@@ -844,10 +743,8 @@ class _CurrentTripState extends State<CurrentTrip> {
                     color: Color.fromRGBO(221, 209, 199, 1),
                     fontWeight: FontWeight.w700),
               ),
-              // onTap: ()  {
               onTap: () async {
                 try {
-                  // final navigator = ;
                   await Future.delayed(Duration.zero);
                   List<TripDate> tr = await Navigator.of(context).push(
                       MaterialPageRoute(
@@ -862,7 +759,6 @@ class _CurrentTripState extends State<CurrentTrip> {
                     if (tr[0].name == "delete") {
                       List<TripDate> trr = [];
                       Navigator.pop(context, trr);
-                      // log("trebuie sa ies");
                     }
                   }
 
@@ -871,7 +767,6 @@ class _CurrentTripState extends State<CurrentTrip> {
                       index = 0;
                     });
                     incomplete();
-                    //   Navigator.pop(context, tr);
                   }
 
                   List<Trip> t = [];
@@ -903,13 +798,6 @@ class _CurrentTripState extends State<CurrentTrip> {
                   dev.log(_.toString());
                   dev.log("exceptie navig curent");
                 }
-                //);
-                // },
-                //  Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) => ModifyPage(
-                //             journey: widget.journey, trips: widget.trips)));
               },
             ),
             PopupMenuItem(
@@ -934,10 +822,6 @@ class _CurrentTripState extends State<CurrentTrip> {
                           ),
                           content: Builder(
                             builder: (context) {
-                              // Get available height and width of the build area of this widget. Make a choice depending on the size.
-                              // var height = MediaQuery.of(context).size.height;
-                              // var width = MediaQuery.of(context).size.width;
-
                               return Container(
                                 height: SizeConfig.screenHeight! * 0.35,
                                 width: SizeConfig.screenWidth! * 0.7,
@@ -989,8 +873,6 @@ class _CurrentTripState extends State<CurrentTrip> {
                           ),
                         ));
 
-                // showAlertDialogExceptions(
-                //     context, ' Informations', 'Eroare la get drinks');
                 _editAlert();
               },
             ),
@@ -999,48 +881,7 @@ class _CurrentTripState extends State<CurrentTrip> {
           alignment: Alignment.center,
           child: Icon(Icons.menu, color: Color.fromRGBO(221, 209, 199, 1))));
 
-  showAlertDialogExceptions(BuildContext context, String tittl, String mes) {
-    // set up the buttons
-    Widget okButton = TextButton(
-      child: Text("Ok"),
-      onPressed: () {
-        Navigator.of(context, rootNavigator: true).pop();
-        // Navigator.pop(dialog)
-      },
-    );
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      insetPadding: EdgeInsets.all(0),
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20))),
-      title: Row(
-        children: [
-          Icon(Icons.info_outlined),
-          Text(
-            tittl,
-            style: TextStyle(color: Color.fromRGBO(75, 74, 103, 1)),
-          )
-        ],
-      ),
-      content: Text(mes),
-      scrollable: true,
-      actions: [
-        okButton,
-      ],
-    );
-
-    // show the dialog
-    // Navigator.pop(context);
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-
   _editAlert() {
-    //edit alertDialog
     var editItem = AlertDialog(
       title: Text('Edit'),
       content: Column(
@@ -1050,7 +891,6 @@ class _CurrentTripState extends State<CurrentTrip> {
             decoration: InputDecoration(
               hintText: 'Edit Item',
             ),
-            // controller: addeditem,
           ),
           TextButton(
               child: Text('Done'),
@@ -1061,15 +901,16 @@ class _CurrentTripState extends State<CurrentTrip> {
         ],
       ),
     );
-    // var editItem;
+
     return showDialog(
-        //like that
         context: context,
         builder: (BuildContext context) {
           return editItem;
         });
   }
 
+  //functia care e apelata in meniu la detalii
+  //arata ce destinatii au dost sau nu vizitate
   String details(List<Trip> ls) {
     String finall = "";
     int yes = 0;

@@ -40,17 +40,15 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // repo = Repo.repo;
-    // appRepository = AppRepository(repo);
-    //var ceva=await DBProvider.db.
+ 
     setState(() => isLoading = true);
     dbHelper = DBProvider.db;
 
-    //getData();
     isImage();
     log("asta e numele ." + photo.photo_name);
   }
 
+  //actiualizare imagine dupa schimbare
   refreshImage() {
     setState(() => {isLoading = true, verify = true});
     isImage();
@@ -72,17 +70,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     backgroundColor: Color.fromRGBO(221, 209, 199, 1),
                   )
                 : Container(
-                    // padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
+                  
                     decoration: BoxDecoration(
                       color: Color.fromRGBO(75, 74, 103, 1),
                     ),
                     child: ListView(children: [
-                      // SizedBox(
-                      //   height: SizeConfig.screenHeight! * 0.15,
-                      // ),
+                    
                       Container(
                         height: SizeConfig.screenHeight! * 0.35,
-                        //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                       
 
                         decoration: BoxDecoration(
                           color: Color.fromRGBO(75, 74, 103, 1),
@@ -96,11 +92,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
 
                         child: Column(
-                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                       
                           children: [
                             Expanded(
                               child:
-                                  //SizedBox(height: SizeConfig.blockSizeVertical! * 2),
+                                
                                   verify
                                       ? CircleAvatar(
                                           radius:
@@ -128,18 +124,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                                       'assets/images/user.png')))),
                             ),
                           ],
-                          //    ),
+                   
                         ),
                       ),
 
                       Container(
                         height: SizeConfig.screenHeight! * 0.55,
                         decoration: BoxDecoration(
-                          //color: Color.fromRGBO(221, 209, 199, 1),
+                        
                           color: Color.fromRGBO(221, 209, 199, 1),
                           borderRadius: BorderRadius.all(Radius.circular(50)),
                           border: Border.all(
-                            //color: Color.fromRGBO(126, 137, 135, 1),
+                           
                             color: Color.fromRGBO(194, 207, 178, 1),
                             width: 2,
                           ),
@@ -147,9 +143,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              // SizedBox(
-                              //   height: 40,
-                              // ),
+                            
                               TextButton(
                                 onPressed: () async {
                                   _showPicker(context);
@@ -179,11 +173,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                     stops: [0.4, 1.0],
                                     colors: [
                                       Color.fromRGBO(75, 74, 103, 1),
-                                      //   Color.fromRGBO(126, 137, 135, 1),
+                                    
                                       Color.fromRGBO(141, 181, 128, 1),
                                     ],
                                   ),
-                                  // color: Colors.deepPurple.shade300,
+                               
                                   borderRadius: BorderRadius.circular(50),
                                 ),
                                 child: Text(
@@ -243,11 +237,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                     stops: [0.4, 1.0],
                                     colors: [
                                       Color.fromRGBO(75, 74, 103, 1),
-                                      //   Color.fromRGBO(126, 137, 135, 1),
+                                    
                                       Color.fromRGBO(141, 181, 128, 1),
                                     ],
                                   ),
-                                  // color: Colors.deepPurple.shade300,
+                                
                                   borderRadius: BorderRadius.circular(50),
                                 ),
                                 child: Text(
@@ -259,11 +253,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
 
-                              //   ],
-                              //  ),
-                              // ),
-                              // ),
-                              //),
                             ]),
                       ),
                     ]),
@@ -272,11 +261,12 @@ class _ProfilePageState extends State<ProfilePage> {
         ));
   }
 
+    //functie salveaza imaginea in baza de date sau o modifica
   _imgFromGallery() async {
     ImagePicker.platform.pickImage(source: ImageSource.gallery).then((imgFile) {
       final file = File(imgFile!.path);
       String imgString = Utility.base64String(file.readAsBytesSync());
-      //  String imgString = Utility.base64String(imgFile!.readAsBytes());
+  
       Photo photo = Photo(id: 1, photo_name: imgString);
       if (text == "Change your profile pic") {
         dbHelper.changePhoto(photo);
@@ -286,6 +276,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  //functie care ia functia si o decodează
   isImage() {
     dbHelper.getPhotos().then((imgs) {
       if (!imgs.isEmpty) {
@@ -311,6 +302,8 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+
+   //functie pentru a aparea pop up de imagine din librarie
   void _showPicker(context) {
     showModalBottomSheet(
         context: context,

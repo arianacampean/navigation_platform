@@ -9,6 +9,8 @@ class DirectionsRepo {
   late final Dio _dio;
   String googleApiKey = 'AIzaSyBi5Y_ei3rpHfOV2AhVquMzd0YhSEqvhBA';
   DirectionsRepo({Dio? dio}) : _dio = dio ?? Dio();
+
+  //aflarea rutei de la sursa origin la destinatia destination
   Future<Directions?> getDirections({
     @required LatLng? origin,
     @required LatLng? destination,

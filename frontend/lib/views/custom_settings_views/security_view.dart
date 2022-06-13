@@ -1,20 +1,11 @@
 import 'dart:developer';
-import 'dart:io';
-
-import 'dart:typed_data';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:frontend/models/sizeConf.dart';
 import 'package:frontend/models/user.dart';
-import 'package:image_picker/image_picker.dart';
-
 import '../../models/exceptie.dart';
 import '../../repository/app_repo.dart';
 
 class SecurityPage extends StatefulWidget {
-  // Settings settings;
   User user;
   SecurityPage({Key? key, required this.user}) : super(key: key);
 
@@ -35,7 +26,6 @@ class _SecurityPageState extends State<SecurityPage> {
   @override
   void initState() {
     super.initState();
-
     appRepository = AppRepository();
   }
 
@@ -58,9 +48,6 @@ class _SecurityPageState extends State<SecurityPage> {
                     color: Color.fromRGBO(75, 74, 103, 1),
                   ),
                   child: ListView(children: [
-                    // SizedBox(
-                    //   height: SizeConfig.screenHeight! * 0.15,
-                    // ),
                     Container(
                       height: SizeConfig.screenHeight! * 0.25,
 
@@ -109,7 +96,6 @@ class _SecurityPageState extends State<SecurityPage> {
                       ),
                       alignment: Alignment.centerLeft,
                     ),
-
                     Container(
                       height: SizeConfig.screenHeight! * 0.58,
                       decoration: BoxDecoration(
@@ -285,8 +271,6 @@ class _SecurityPageState extends State<SecurityPage> {
                                     end: Alignment.bottomRight,
                                     stops: [0.0, 0.58],
                                     colors: [
-                                      //   Color.fromRGBO(126, 137, 135, 1),
-                                      //  Color.fromRGBO(141, 181, 128, 1),
                                       Color.fromRGBO(75, 74, 103, 1),
                                       Color.fromRGBO(75, 74, 103, 1),
                                     ],
@@ -385,37 +369,6 @@ class _SecurityPageState extends State<SecurityPage> {
                       ),
                     )
                   ])),
-              // Positioned(
-              //     top: 1060,
-              //     child: Column(children: [
-              //       Container(
-              //         alignment: Alignment.center,
-              //         height: SizeConfig.screenHeight! * 0.1,
-              //         width: MediaQuery.of(context).size.width,
-              //         //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
-              //         decoration: BoxDecoration(
-              //             gradient: LinearGradient(
-              //               begin: Alignment.topLeft,
-              //               end: Alignment.bottomRight,
-              //               colors: [
-              //                 Color.fromRGBO(141, 181, 128, 1),
-              //                 Color.fromRGBO(194, 207, 178, 1),
-              //                 Color.fromRGBO(221, 209, 199, 1),
-              //               ],
-              //             ),
-              //             image: DecorationImage(
-              //                 fit: BoxFit.cover,
-              //                 image: AssetImage('assets/images/map.png'),
-              //                 //),
-              //                 colorFilter: ColorFilter.mode(
-              //                   Colors.white.withOpacity(0.12),
-              //                   BlendMode.modulate,
-              //                 )),
-              //             borderRadius: BorderRadius.only(
-              //                 topLeft: Radius.circular(50),
-              //                 topRight: Radius.circular(50))),
-              //       ),
-              //     ])),
               Positioned(
                 top: 1070,
                 child: Column(

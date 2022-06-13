@@ -61,8 +61,10 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     getData();
   }
 
+  //verifica daca exista o călătorie curenta
+  //in functie de asta apeleaza sau nu functile de care e nevoie pentru gasirea de recomandari
   Future getData() async {
-    // log("iau datele de pe server pt prima pagina");
+   
     setState(() => isLoading = true);
     int index = 0;
     try {
@@ -127,6 +129,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     }
   }
 
+  //ia toate trip urile din baza de date
   Future<List<Trip>?> getAllTrips() async {
     try {
       all_trips = await appRepository.getallTrips();
@@ -139,8 +142,11 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     }
   }
 
+  //gaseste recomandarile in functie de id urile utilizatorilor similari si tara
+  //in caz ca se repeta cu cele din călătoria curenta le elimina
+  //returneaza lista cu recomandari
   List<String> getTripsRecom(List<int> similarity) {
-    // all_trips = await appRepository.getallTrips();
+
     log("sunt in functie la recom");
     List<Trip> re = [];
     trips.forEach((element) {
@@ -173,6 +179,12 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     return reco;
   }
 
+  //functia face incadrarea in categorii
+  //pentru fiecare categorie exista un dictionar cu o cheie si lista de utilizatori care se inacreaza acolo
+  //dupa ce este terminata incadrarea apeleaza findSimilarity  care rezulta lista cu id ul utilizatorilor similari
+  //apoi in functie de acele id-uri,se gaseste id ul jounry-urilor lor
+  //face apel apoi catre  getTripsRecom de unde rezulta lista cu recomandari
+  //daca acesta este goala pe ecaran se va afisa un mesaj altfel se vor afisa recomandarile
   List<String> getSimilarity() {
     log("sunt in functie");
     Map<int, int> map = getUserId();
@@ -239,6 +251,8 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     return tr;
   }
 
+  //cauta utilizatorii care se afla in cel putin 3 categorii cu utilizatorul care face cererea
+  //returneaza o lista cu id-urile utilizatorilor similari
   List<int> FindSimilarity() {
     Map<int, int> simi = {};
     categories.forEach((key, value) {
@@ -369,8 +383,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                                           border: Border.all(
                                             color: Color.fromRGBO(
                                                 141, 181, 128, 1),
-                                            // color:
-                                            //     Color.fromRGBO(75, 74, 103, 1),
+                                          
                                             width: 2,
                                           ),
                                         ),
@@ -381,7 +394,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                                                 MainAxisAlignment.start,
                                             children: [
                                               Container(
-                                                // alignment: Alignment.topLeft,
+                                             
                                                 width: SizeConfig.screenWidth! *
                                                     0.108,
                                                 height:
@@ -390,8 +403,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                                                 decoration: BoxDecoration(
                                                   color: Color.fromRGBO(
                                                       194, 207, 178, 1),
-                                                  //      borderRadius: BorderRadius.all(
-                                                  // Radius.circular(50)),
+                                                
                                                   borderRadius:
                                                       BorderRadius.only(
                                                           topRight:

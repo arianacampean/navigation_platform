@@ -14,9 +14,6 @@ class Directions {
       required this.totalDuration});
 
   factory Directions.fromMap(Map<String, dynamic> map) {
-    // if ((map['routes'] as List).isEmpty) {
-    //   return Directions(bounds: LatLngBounds, polylinePoints: polylinePoints, totalDistance: totalDistance, totalDuration: totalDuration);
-    // }
     final data = Map<String, dynamic>.from(map['routes'][0]);
     final northeast = data['bounds']['northeast'];
     final southwest = data['bounds']['southwest'];

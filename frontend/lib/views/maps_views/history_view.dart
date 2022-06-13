@@ -13,20 +13,16 @@ import 'package:frontend/repository/app_repo.dart';
 import 'add_trip_view.dart';
 
 class HistoryPage extends StatefulWidget {
-  // List<Trip> trips;
+
   User user;
-
   HistoryPage({Key? key, required this.user}) : super(key: key);
-
   @override
   _HistoryPageState createState() => _HistoryPageState();
 }
 
 class _HistoryPageState extends State<HistoryPage> {
   String dropdownValue = 'Yes';
-//  List<Trip> trips = [];
   bool isLoading = true;
-
   late Exceptie ex;
   late AppRepository appRepository;
   List<Trip> trips = [];
@@ -35,17 +31,13 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   void initState() {
     super.initState();
-
     ex = Exceptie.ex;
-
     appRepository = AppRepository();
-    //  widget.journey.forEach((element) {
-    //trips.add(element.trip);
-    //  });
     isLoading = true;
     getData();
   }
 
+  //ia toate jouney-urile userlui si toate tripurile
   Future getData() async {
     try {
       journeys = await appRepository.getJouneysByUserId(widget.user);
@@ -60,6 +52,7 @@ class _HistoryPageState extends State<HistoryPage> {
     });
   }
 
+  //face filtrarea tripurilor in functie de un id si le returneaza
   List<Trip> getTripByJourney(int id) {
     List<Trip> trip = [];
     trips.forEach((element) {
@@ -84,17 +77,13 @@ class _HistoryPageState extends State<HistoryPage> {
                       backgroundColor: Color.fromRGBO(221, 209, 199, 1),
                     )
                   : Container(
-                      // padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
                       decoration: BoxDecoration(
                         color: Color.fromRGBO(75, 74, 103, 1),
                       ),
                       child: ListView(children: [
-                        // SizedBox(
-                        //   height: SizeConfig.screenHeight! * 0.15,
-                        // ),
+                    
                         Container(
                           height: SizeConfig.screenHeight! * 0.25,
-                          //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
                           decoration: BoxDecoration(
                             color: Color.fromRGBO(75, 74, 103, 1),
                             image: DecorationImage(
@@ -129,18 +118,15 @@ class _HistoryPageState extends State<HistoryPage> {
                         Container(
                           height: SizeConfig.screenHeight! * 0.65,
                           decoration: BoxDecoration(
-                            //color: Color.fromRGBO(221, 209, 199, 1),
+                          
                             color: Color.fromRGBO(221, 209, 199, 1),
                             borderRadius: BorderRadius.all(Radius.circular(50)),
                             border: Border.all(
-                              //color: Color.fromRGBO(126, 137, 135, 1),
+                            
                               color: Color.fromRGBO(194, 207, 178, 1),
                               width: 2,
                             ),
 
-                            //  ),
-
-                            // borderRadius: BorderRadius.circular(10),
                           ),
                           child: ListView.builder(
                             scrollDirection: Axis.vertical,
@@ -165,13 +151,12 @@ class _HistoryPageState extends State<HistoryPage> {
                                           border: Border.all(
                                             color: Color.fromRGBO(
                                                 141, 181, 128, 1),
-                                            // color:
-                                            //     Color.fromRGBO(75, 74, 103, 1),
+                                           
                                             width: 2,
                                           ),
                                         ),
                                         width: SizeConfig.screenWidth! * 0.9,
-                                        // height: SizeConfig.screenHeight! * 0.07,
+                                      
                                         child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -186,8 +171,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                                 decoration: BoxDecoration(
                                                   color: Color.fromRGBO(
                                                       194, 207, 178, 1),
-                                                  //      borderRadius: BorderRadius.all(
-                                                  // Radius.circular(50)),
+                                               
                                                   borderRadius:
                                                       BorderRadius.only(
                                                           topRight:
@@ -214,7 +198,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                                             .screenHeight! *
                                                         0.063,
                                                     decoration: BoxDecoration(
-                                                      //color: Colors.red,
+                                                     
                                                       color: Color.fromRGBO(
                                                           141, 181, 128, 1),
                                                       borderRadius:
@@ -279,21 +263,20 @@ class _HistoryPageState extends State<HistoryPage> {
                                     VisualDensity.adaptivePlatformDensity,
                               );
                             },
-                            // separatorBuilder:
-                            //     (BuildContext context, int index) {
-                            //   return Divider();
-                            // },
+                           
                           ),
                         )
                       ])))),
     );
   }
 
+  //retruneaza un boolean in functie daca destinatia a fost sau nu vizitata
   String visited(bool yes) {
     if (yes == true) return 'Yes';
     return 'No';
   }
 
+  //combina datele unei destinatii si returneaza un strig cu toate
   String getText(List<Trip> list) {
     String s = "";
     list.forEach((element) {

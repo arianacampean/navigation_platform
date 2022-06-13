@@ -28,15 +28,6 @@ class Trip {
   String toString() {
     // TODO: implement toString
     return this.city + " - " + this.country + " - " + this.name;
-
-    // this.latitude.toString() +
-    //     " -" +
-    //     this.longitude.toString() +
-    //     "- " +
-
-    //     "- " +
-
-    //     this.visited.toString();
   }
 
   Trip.clone(Trip clone)

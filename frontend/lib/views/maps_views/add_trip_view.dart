@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
@@ -10,13 +9,12 @@ import 'package:frontend/models/journey.dart';
 import 'package:frontend/models/sizeConf.dart';
 import 'package:frontend/models/trip.dart';
 import 'package:frontend/repository/app_repo.dart';
-
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/directions.dart';
 import 'package:google_maps_webservice/places.dart';
 
-//vezi sa i dai sa poata i srollable
+
 class AddTrip extends StatefulWidget {
   User user;
   int index;
@@ -57,19 +55,20 @@ class _AddTripState extends State<AddTrip> {
   @override
   void initState() {
     super.initState();
-    ;
     ex = Exceptie.ex;
-
     appRepository = AppRepository();
     getData();
   }
 
+  //functia ia toate jouney-urile utilizatorului care este logat
+  //acestea sunt utilzate la compararea date lor de incepere si terminare pentru jouney-ul adaugat
   Future getData() async {
     try {
       journeys = await appRepository.getJouneysByUserId(widget.user);
     } catch (_) {
       log(_.toString());
-      log("eroare la luat journeys");
+      log("la luat jouneys");
+      ex.showAlertDialogExceptions(context, "Error", "Something went wrong");
     }
     setState(() {
       isLoading = false;
@@ -83,7 +82,7 @@ class _AddTripState extends State<AddTrip> {
     return Scaffold(
         appBar: AppBar(
           title: Text("Add trip"),
-          //backgroundColor: Colors.deepPurpleAccent,
+         
         ),
         body: Center(
             child: isLoading
@@ -92,18 +91,15 @@ class _AddTripState extends State<AddTrip> {
                     Container(
                       height: SizeConfig.screenHeight! * 0.6,
                       child: GoogleMap(
-                        //Map widget from google_maps_flutter package
                         zoomGesturesEnabled: true,
                         zoomControlsEnabled: false,
-
-                        initialCameraPosition: CameraPosition(
-                          //innital position in map
+                        initialCameraPosition: CameraPosition(                        
                           target: startLocation, //initial position
                           zoom: 14.0, //initial zoom level
                         ),
                         mapType: MapType.hybrid, //map type
                         onMapCreated: (controller) {
-                          //method called when map is created
+                         
                           setState(() {
                             mapController = controller;
                           });
@@ -119,16 +115,16 @@ class _AddTripState extends State<AddTrip> {
                           height: SizeConfig.screenHeight! * 0.35,
                           width: SizeConfig.screenWidth! * 1,
                           decoration: BoxDecoration(
-                            //color: Color.fromRGBO(221, 209, 199, 1),
+                           
                             color: Color.fromRGBO(221, 209, 199, 1),
                             borderRadius: BorderRadius.all(Radius.circular(50)),
                             border: Border.all(
-                              //color: Color.fromRGBO(126, 137, 135, 1),
+                            
                               color: Color.fromRGBO(194, 207, 178, 1),
                               width: 2,
                             ),
                           ),
-                          // child: IntrinsicHeight(
+                        
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -143,13 +139,13 @@ class _AddTripState extends State<AddTrip> {
                                         color:
                                             Color.fromRGBO(141, 181, 128, 1)),
                                     child: Align(
-                                      //alignment: Alignment.topCenter,
+                                     
                                       child: Container(
                                         alignment: Alignment.topCenter,
                                         width: SizeConfig.screenWidth! * 0.38,
                                         height: SizeConfig.screenHeight! * 0.21,
                                         decoration: BoxDecoration(
-                                          // color: Colors.amber,
+                                        
                                           image: DecorationImage(
                                             image: NetworkImage(buildPhotoURL(
                                                 detail_for_info.result.photos[0]
@@ -203,11 +199,11 @@ class _AddTripState extends State<AddTrip> {
                           height: SizeConfig.screenHeight! * 0.35,
                           width: SizeConfig.screenWidth! * 1,
                           decoration: BoxDecoration(
-                            //color: Color.fromRGBO(221, 209, 199, 1),
+                           
                             color: Color.fromRGBO(221, 209, 199, 1),
                             borderRadius: BorderRadius.all(Radius.circular(50)),
                             border: Border.all(
-                              //color: Color.fromRGBO(126, 137, 135, 1),
+                             
                               color: Color.fromRGBO(194, 207, 178, 1),
                               width: 2,
                             ),
@@ -224,13 +220,13 @@ class _AddTripState extends State<AddTrip> {
                           ),
                         ),
                       ),
-                    //search autoconplete input
+                   
                     Positioned(
-                        //search input bar
+                      
                         top: 60,
                         child: InkWell(
                           onTap: () async {
-                            // log(forStart.toString());
+                         
                             var place = await PlacesAutocomplete.show(
                                 context: context,
                                 textStyle: TextStyle(color: Colors.black),
@@ -243,11 +239,6 @@ class _AddTripState extends State<AddTrip> {
                                 mode: Mode.overlay,
                                 types: [],
                                 strictbounds: false,
-
-                                //region: 'eu',
-                                //
-
-                                //google_map_webservice package
                                 onError: (err) {
                                   print(err);
                                 });
@@ -257,12 +248,12 @@ class _AddTripState extends State<AddTrip> {
                                 location = place.description.toString();
                               });
 
-                              //form google_maps_webservice package
+                           
                               final plist = GoogleMapsPlaces(
                                 apiKey: googleApikey,
                                 apiHeaders:
                                     await GoogleApiHeaders().getHeaders(),
-                                //from google_api_headers package
+                      
                               );
 
                               String placeid = place.placeId ?? "0";
@@ -285,7 +276,7 @@ class _AddTripState extends State<AddTrip> {
                               final lat = geometry.location.lat;
                               final lang = geometry.location.lng;
                               var newlatlang = LatLng(lat, lang);
-                              // setState(() {
+                           
                               trip.latitude = lat;
                               trip.longitude = lang;
                               trip.name = place.description.toString();
@@ -313,7 +304,6 @@ class _AddTripState extends State<AddTrip> {
                                 log(element.longName);
                               });
 
-                              //move map camera to selected place with animation
                               mapController?.animateCamera(
                                   CameraUpdate.newCameraPosition(CameraPosition(
                                       target: newlatlang, zoom: 18)));
@@ -330,7 +320,7 @@ class _AddTripState extends State<AddTrip> {
                                       color: Color.fromRGBO(221, 209, 199, 1),
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(20))),
-                                  //padding: EdgeInsets.all(0),
+                                 
                                   width: MediaQuery.of(context).size.width - 40,
                                   child: ListTile(
                                     title: Text(
@@ -351,7 +341,7 @@ class _AddTripState extends State<AddTrip> {
                             alignment: Alignment.center,
                             height: SizeConfig.screenHeight! * 0.05,
                             width: MediaQuery.of(context).size.width,
-                            //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                          
                             decoration: BoxDecoration(
                                 color: Color.fromRGBO(75, 74, 103, 1),
                                 image: DecorationImage(
@@ -375,7 +365,7 @@ class _AddTripState extends State<AddTrip> {
                     ),
 
                     Positioned(
-                      //search input bar
+                     
                       bottom: 55,
                       left: 55 / 100 * (MediaQuery.of(context).size.width),
                       child: Container(
@@ -395,29 +385,35 @@ class _AddTripState extends State<AddTrip> {
                             stops: [0.4, 1.0],
                             colors: [
                               Color.fromRGBO(75, 74, 103, 1),
-                              //   Color.fromRGBO(126, 137, 135, 1),
+                
                               Color.fromRGBO(141, 181, 128, 1),
                             ],
                           ),
-                          //  color: Colors.deepPurple.shade300,
+                        
                           borderRadius: BorderRadius.circular(50),
                         ),
                         child: ElevatedButton(
                           onPressed: () async {
                             log(trip.toString());
+                            if (trip.name != "") {
+                              trips.add(Trip.clone(trip));
+                              trips.forEach((element) {
+                                log(element.toString());
+                              });
 
-                            trips.add(Trip.clone(trip));
-                            trips.forEach((element) {
-                              log(element.toString());
-                            });
-
-                            final snackBar = SnackBar(
-                              content: Builder(builder: (context) {
-                                return const Text('Destination added');
-                              }),
-                            );
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(snackBar);
+                              final snackBar = SnackBar(
+                                content: Builder(builder: (context) {
+                                  return const Text('Destination added');
+                                }),
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            } else {
+                              ex.showAlertDialogExceptions(
+                                  context,
+                                  'Information',
+                                  'You need to select a destination before you add it');
+                            }
                           },
                           child: Container(
                               alignment: Alignment.center,
@@ -443,7 +439,7 @@ class _AddTripState extends State<AddTrip> {
                             )),
                             backgroundColor:
                                 MaterialStateProperty.all(Colors.transparent),
-                            // elevation: MaterialStateProperty.all(3),
+                           
                             shadowColor:
                                 MaterialStateProperty.all(Colors.transparent),
                           ),
@@ -470,12 +466,12 @@ class _AddTripState extends State<AddTrip> {
                             end: Alignment.bottomRight,
                             stops: [0.0, 0.58],
                             colors: [
-                              //   Color.fromRGBO(126, 137, 135, 1),
+                            
                               Color.fromRGBO(141, 181, 128, 1),
                               Color.fromRGBO(75, 74, 103, 1),
                             ],
                           ),
-                          //  color: Colors.deepPurple.shade300,
+                       
                           borderRadius: BorderRadius.circular(50),
                         ),
                         child: ElevatedButton(
@@ -521,8 +517,10 @@ class _AddTripState extends State<AddTrip> {
                   ])));
   }
 
-  //vezi ca aici daca pui aceeasi data nu arata cea de dupa
-
+  //functia pentru a aparea pe ecran datePickerul
+  //daca acesta este apelata din eranul de adaugare o sa apara pentru a putea alege datele pentru excurie
+  //in caz ca e apelata din ecranul de modificari acestea nu vor aparea pe ecan
+  //modificarile unui journey sau adaugarea acestuia sunt realizate aici de asemenea
   _selectDate(BuildContext context) async {
     if (widget.index == 0) {
       final DateTime? selected = await showDatePicker(
@@ -549,19 +547,14 @@ class _AddTripState extends State<AddTrip> {
           selectedDate_to_Start = selected;
           log(selectedDate_to_Start.toString());
         });
-      //  final DateTime? selectedd =DateTime.now();
+
       log(selected.toString());
       log(selectedDate_to_End.toString());
       log(selectedDate_to_Start.toString());
       log(selected.toString());
       int good = 0;
       if (selected != null) {
-        log("intru in selcetd");
-        // DateTime? selectedd = DateTime(1888);
-        //aici ai grija ca daca dai data curenta nu intra in while
         while (selectedDate_to_End.isBefore(selectedDate_to_Start)) {
-          //  log("sel" + selected.toString());
-          log("am intart");
           final DateTime? selectedd = await showDatePicker(
               context: context,
               builder: (context, child) {
@@ -570,9 +563,6 @@ class _AddTripState extends State<AddTrip> {
                     colorScheme: ColorScheme.light(
                       primary: Color.fromRGBO(103, 112, 110, 1),
                       onPrimary: Color.fromRGBO(221, 209, 199, 1),
-                      //   onPrimary: Color.fromRGBO(103, 112, 110, 1),
-                      // secondary: Color.fromRGBO(221, 209, 199, 1),
-                      // onSurface: Colors.black,
                     ),
                     dialogBackgroundColor: Color.fromRGBO(221, 209, 199, 1),
                   ),
@@ -691,6 +681,7 @@ class _AddTripState extends State<AddTrip> {
     }
   }
 
+  //functie pentru a afla orele de deschidere a obiectivelor turistice
   String details_destinations_openingHours() {
     String s = "";
     var list = detail_for_info.result.openingHours;
@@ -745,8 +736,8 @@ class _AddTripState extends State<AddTrip> {
     return s;
   }
 
+  // aflarea numarului de telefon pentru obiectivele turistice
   String phone_number() {
-    //String s = "";
     String? s = detail_for_info.result.internationalPhoneNumber;
     late String ss;
     if (s == null) {
@@ -756,6 +747,7 @@ class _AddTripState extends State<AddTrip> {
     return ss;
   }
 
+  //aflarea rating-ului
   String rating() {
     String s = "Rating: ";
     var rating = detail_for_info.result.rating;
@@ -766,6 +758,7 @@ class _AddTripState extends State<AddTrip> {
     return s + rating.toString();
   }
 
+  //functie pentru a putea vedea fotografia obiectivului turistic
   String buildPhotoURL(String photoReference) {
     return 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${googleApikey}';
   }

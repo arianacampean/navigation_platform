@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-            //primarySwatch: Color.fromRGBO(75, 74, 103,1)
+        
             colorScheme: ColorScheme.fromSwatch().copyWith(
               primary: Color.fromRGBO(75, 74, 103, 1),
               onPrimary: Color.fromRGBO(221, 209, 199, 1),
@@ -37,31 +37,8 @@ class MyApp extends StatelessWidget {
               secondary: Color.fromRGBO(103, 112, 110, 1),
             ),
             scaffoldBackgroundColor: Color.fromRGBO(75, 74, 103, 1)),
-        //verde inchis Color.fromRGBO(141, 181, 128, 1),
-        //verde deschis  Color.fromRGBO( 194, 207, 178, 1)
-        //home: Home());
-        //home: AddTrip());
-        // home: ModifyPage(
-        //   journey: jj,
-        // ));
+ 
         home: LoginForm());
-    // home: RecommendationsPage(
-    //     user: User(
-    //         id: 1,
-    //         last_name: "Ariana",
-    //         first_name: "Deborah",
-    //         email: "jdj")));
-    // home: PrincipalPage(
-    //     user: User(
-    //         id: 1,
-    //         first_name: "Ariana",
-    //         last_name: "Campean",
-    //         email: "deborah_ariana@yahoo.com")));
-
-    // home: SecurityPage(
-    //     user: User(
-    //         first_name: "Arinaa",
-    //         last_name: "Campean",
-    //         email: "kdmkjc@yahoo.com")));
+ 
   }
 }

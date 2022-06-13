@@ -13,7 +13,7 @@ import 'package:frontend/repository/app_repo.dart';
 import 'add_trip_view.dart';
 
 class ModifyPage extends StatefulWidget {
-  // List<Trip> trips;
+  
   User user;
   Journey journey;
   List<Trip> trips;
@@ -30,7 +30,7 @@ class ModifyPage extends StatefulWidget {
 
 class _ModifyPageState extends State<ModifyPage> {
   String dropdownValue = 'Yes';
-//  List<Trip> trips = [];
+
   bool isLoading = true;
 
   late Exceptie ex;
@@ -43,18 +43,14 @@ class _ModifyPageState extends State<ModifyPage> {
   @override
   void initState() {
     super.initState();
-
     ex = Exceptie.ex;
-
     appRepository = AppRepository();
-    //  widget.journey.forEach((element) {
-    //trips.add(element.trip);
-    //  });
-
     getData();
     isLoading = false;
   }
 
+  //ia toate jouney-urile utilizatorului pentru a verifica datele de incepere si terminare
+  //in caz ca acesta doreste modificarea datelor curente
   Future getData() async {
     try {
       journeys = await appRepository.getJouneysByUserId(widget.user);
@@ -99,17 +95,15 @@ class _ModifyPageState extends State<ModifyPage> {
                     backgroundColor: Color.fromRGBO(221, 209, 199, 1),
                   )
                 : Container(
-                    // padding: EdgeInsets.fromLTRB(3, 0, 3, 0),
+                   
                     decoration: BoxDecoration(
                       color: Color.fromRGBO(75, 74, 103, 1),
                     ),
                     child: ListView(children: [
-                      // SizedBox(
-                      //   height: SizeConfig.screenHeight! * 0.15,
-                      // ),
+                     
                       Container(
                         height: SizeConfig.screenHeight! * 0.25,
-                        //  margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                        
                         decoration: BoxDecoration(
                           color: Color.fromRGBO(75, 74, 103, 1),
                           image: DecorationImage(
@@ -220,7 +214,7 @@ class _ModifyPageState extends State<ModifyPage> {
                       Container(
                         height: SizeConfig.screenHeight! * 0.60,
                         decoration: BoxDecoration(
-                          //color: Color.fromRGBO(221, 209, 199, 1),
+                      
                           color: Color.fromRGBO(221, 209, 199, 1),
                           borderRadius: BorderRadius.all(Radius.circular(50)),
                           border: Border.all(
@@ -229,9 +223,6 @@ class _ModifyPageState extends State<ModifyPage> {
                             width: 2,
                           ),
 
-                          //  ),
-
-                          // borderRadius: BorderRadius.circular(10),
                         ),
 
                         child: ListView.builder(
@@ -239,7 +230,7 @@ class _ModifyPageState extends State<ModifyPage> {
                           itemCount: widget.trips.length,
                           itemBuilder: (context, index) {
                             return ListTile(
-                              //leading: Image.asset('assets/images/imagess.jpg'),
+                            
                               title: Align(
                                 alignment: Alignment.center,
                                 child: Container(
@@ -283,10 +274,7 @@ class _ModifyPageState extends State<ModifyPage> {
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: [
-                                                // Align(
-                                                //     alignment:
-                                                //         Alignment.centerLeft,
-                                                //   child:
+                                              
                                                 Text(
                                                   "Country: " +
                                                       widget.trips[index]
@@ -298,10 +286,7 @@ class _ModifyPageState extends State<ModifyPage> {
                                                           221, 209, 199, 1)),
                                                 ),
 
-                                                // Align(
-                                                //     alignment:
-                                                //         Alignment.centerRight,
-                                                //     child:
+                                               
                                                 Text(
                                                   "City: " +
                                                       widget.trips[index].city,
@@ -418,8 +403,7 @@ class _ModifyPageState extends State<ModifyPage> {
                                   ]),
                                 ),
                               ),
-                              //  Text(title_for_list(widget.trips[index]),
-                              //     style: TextStyle(fontSize: 20))),
+                            
                               onTap: () async {},
                               onLongPress: () {
                                 showAlertDialog(
@@ -437,8 +421,7 @@ class _ModifyPageState extends State<ModifyPage> {
                             );
                           },
 
-                          // ),
-                          //  ),
+                        
                         ),
                         //),
                       ),
@@ -460,20 +443,21 @@ class _ModifyPageState extends State<ModifyPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.delete),
             label: 'Delete trip',
-            // backgroundColor: Color.fromRGBO(194, 207, 178, 1),
+            
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.save),
             label: 'Save changes',
-            //backgroundColor: Color.fromRGBO(194, 207, 178, 1),
+           
           ),
         ],
         iconSize: 60,
-        //  selectedItemColor: Color.fromRGBO(141, 181, 128, 1),
+        
       ),
     );
   }
 
+  //functie pentru stergere meniul de adaugare stergere si modificare schimbari
   void _onItemTapped(int index) async {
     setState(() {
       _selectedIndex = index;
@@ -534,6 +518,7 @@ class _ModifyPageState extends State<ModifyPage> {
     log(_selectedIndex.toString());
   }
 
+  //returneaza un string cu datele unei destinatii pentru a le baga in lista
   String title_for_list(Trip t) {
     String s = "Name:" +
         t.name +
@@ -551,7 +536,7 @@ class _ModifyPageState extends State<ModifyPage> {
       s = s + "Yes";
     return s;
   }
-
+  // returneza un boolean in functie de visited a unei destinatii
   String dropdown(bool visited) {
     if (visited == true)
       return "Yes";
@@ -559,6 +544,7 @@ class _ModifyPageState extends State<ModifyPage> {
       return "No";
   }
 
+  //dialog de alerta pentru stergere destinatie sau calatorie
   showAlertDialog(BuildContext context, String title, String content, int nr) {
     // set up the buttons
     Widget cancelButton = TextButton(
@@ -571,7 +557,7 @@ class _ModifyPageState extends State<ModifyPage> {
     Widget continueButton = TextButton(
         child: Text("Yes"),
         onPressed: () async {
-          //sterg tot
+       
           if (nr == 0) {
             try {
               Navigator.of(context, rootNavigator: true).pop();
@@ -591,18 +577,18 @@ class _ModifyPageState extends State<ModifyPage> {
               tr.add(delete);
               Navigator.pop(context, tr);
 
-              //Navigator.pop(context);
+           
             } catch (_) {
               log(_.toString());
             }
           } else {
             Navigator.of(context, rootNavigator: true).pop();
-            //  await appRepository.deleteTrip(nr);
+          
 
             int ind = 0;
             for (int i = 0; i < widget.trips.length; i++) {
               if (widget.trips[i].id == nr) {
-                // deletedTrips.add(Trip.clone(widget.trips[i]));
+             
 
                 await appRepository.deleteTrip(nr);
 
@@ -624,7 +610,7 @@ class _ModifyPageState extends State<ModifyPage> {
           }
         });
 
-    // set up the AlertDialog
+  
     AlertDialog alert = AlertDialog(
       backgroundColor: Color.fromRGBO(221, 209, 199, 1),
       title: Text(title,
@@ -648,6 +634,8 @@ class _ModifyPageState extends State<ModifyPage> {
     );
   }
 
+
+  //functie pentru schimbare de data incepere/terminare calatorie
   _selectDate(BuildContext context, String st) async {
     DateTime date;
     DateTime firstdate;
@@ -673,9 +661,7 @@ class _ModifyPageState extends State<ModifyPage> {
               colorScheme: ColorScheme.light(
                 primary: Color.fromRGBO(103, 112, 110, 1),
                 onPrimary: Color.fromRGBO(221, 209, 199, 1),
-                //   onPrimary: Color.fromRGBO(103, 112, 110, 1),
-                // secondary: Color.fromRGBO(221, 209, 199, 1),
-                // onSurface: Colors.black,
+             
               ),
               dialogBackgroundColor: Color.fromRGBO(221, 209, 199, 1),
             ),
@@ -696,6 +682,7 @@ class _ModifyPageState extends State<ModifyPage> {
       });
   }
 
+  //verifica datele calatoriilor sa nu coincida 
   bool verifyDate(
       DateTime selectedDate_to_Start, DateTime selectedDate_to_End) {
     int count = 0;
